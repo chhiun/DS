@@ -278,8 +278,7 @@ int main() {
             			}
             			i = temp-1;
 						list.addstr(save);
-						cout << save;
-						cout << ", ";
+
 
 					}
 					else if(!isdigit(expression[i])){ // 如果當前字元不是數字 
@@ -293,19 +292,14 @@ int main() {
 							else if(isOperator(expression[i])){ //如果是計算符號，就看當前的計算符號有沒有順位大於在stack頂部的符號 
 								while(priority(expression[i])<= priority(stack.top())){
 									list.add(stack.top());
-									stack.pop();
-									cout << ", ";; //如果沒有大於，就先把stack裡面的符號印出來 
+									stack.deletetop();
 								}
 								stack.push(expression[i]); //印完再把當前的符號放進去 
 							}
 							else if(expression[i] == ')'){ //如果遇到右括弧 就把遇到左括弧之前的計算符都印出來 
 								while(stack.top()!='('){
 									list.add(stack.top());
-									stack.pop();
-									if(check>=0){
-										cout << ", ";										
-										check--;
-									}								
+									stack.deletetop();						
 								}
 								stack.deletetop(); //然後把左括弧刪掉 
 							}						
@@ -315,10 +309,9 @@ int main() {
 				}
 				while(!stack.isEmpty()){ //如果stack裡面還有東西 就印出來 
 					list.add(stack.top());
-					stack.pop();
-					if(!stack.isEmpty())cout << ", ";
+					stack.deletetop();
 				}
-				cout<<"\n";
+
 				list.printList();
 				stack.clearstack(); //釋放記憶體 
 				list.clearlist();
@@ -353,7 +346,7 @@ int main() {
 
 				for(int i = 0 ; i < expression.length() ; i++){  
 
-					if(isdigit(expression[i])){ //如果當前字元是數字 
+					if(isdigit(expression[i])){ //如果當前字元是數字，放入List 
 						string save;
 						int temp = i;
             			while ( isdigit(expression[temp])) {
@@ -370,7 +363,7 @@ int main() {
 							if(stack.isEmpty()){ // 如果stack是空的，直接把符號放進去 
 								stack.push(expression[i]);
 							}
-							else if((expression[i]==')')){ //左括弧也是直接放 
+							else if((expression[i]==')')){ //右括弧也是直接放 
 								stack.push(expression[i]);
 								check++;
 							}
@@ -382,7 +375,7 @@ int main() {
 								}
 								stack.push(expression[i]); //印完再把當前的符號放進去 
 							}
-							else if(expression[i] == '('){ //如果遇到右括弧 就把遇到左括弧之前的計算符都印出來 
+							else if(expression[i] == '('){ //如果遇到左括弧 就把遇到右括弧之前的計算符都放入List 
 								while(stack.top()!=')'){
 									list.add(stack.top());
 									stack.deletetop();
@@ -391,13 +384,13 @@ int main() {
 										check--;
 									}								
 								}
-								stack.deletetop(); //然後把左括弧刪掉 
+								stack.deletetop(); //然後把右括弧刪掉 
 							}						
 					} 
 
 
 				}
-				while(!stack.isEmpty()){ //如果stack裡面還有東西 就印出來 
+				while(!stack.isEmpty()){ //如果stack裡面還有東西 就放入List 
 					list.add(stack.top());
 					stack.deletetop();
 
