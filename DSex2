@@ -160,18 +160,18 @@ class Stack { //用pointer建立stack的Class
     }
 };
 
-int priority(char c) { //用來決定+-*/的優先順序， * / 優於 + -
+int priority(char c) {
     switch (c) {
-    case '+':
-        return 2;
-    case '-':
-        return 2;
-    case '*':
-        return 1;
-    case '/':
-        return 1;
-    default:
-        return 0;
+        case '+':
+            return 1;
+        case '-':
+            return 1;
+        case '*':
+            return 2;
+        case '/':
+            return 2;
+        default:
+            return 0;
     }
 }
 
@@ -197,7 +197,7 @@ bool isValidExpression(const string & expression) { //檢查是不是合法的�
         } else if (isdigit(c)) {
             if (!isOperator(prev) && !isdigit(prev) && prev != '(') {
                 cout << "Error3: there is one extra operand.\n";
-                return false; //多出的數字，錯誤			
+                return false; //多出的數字，錯誤
             }
 
         } else if (!isdigit(c)) {
