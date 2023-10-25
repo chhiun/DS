@@ -1,0 +1,321 @@
+// 電資三 11020116 潘皓群 
+// 有使用C++11 
+
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <deque>
+#include <cctype>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+void GetCommand(int & command) { // 印出使用介面並讀入指令以及處理指令出錯的情況 
+    printf("\n");
+    printf("* Arithmetic Expression Evaluator *\n");
+    printf("* 0. Quit                         *\n");
+    printf("* 1. Infix2postfix Evaluation     *\n");
+    printf("* 2. Infix2prefix Evaluation      *\n");
+    printf("***********************************\n");
+    printf("Input a choice(0, 1, 2): ");
+    cin >> command;
+
+}
+
+bool isOperator(char c) { //是否是正確的計算符號? 
+    return c == '+' || c == '-' || c == '*' || c == '/';
+}
+
+class Node {
+public:
+    char data;
+    string num;
+    Node * next;
+    Node * prev;
+    Node * last;
+    Node(char c): data(c), num("-1"), next(nullptr), prev(nullptr), last(nullptr) {}
+    Node(string number): data(' '), num(number), next(nullptr), prev(nullptr), last(nullptr) {}
+};
+
+class List {
+public:
+    List(): first(nullptr),
+    last(nullptr) {}
+
+    void clearlist() {
+        while (first != nullptr) {
+            Node * node = first;
+            first = first -> next;
+            delete node;
+        }
+    }
+
+    void add(char ch) {
+        if (first == nullptr) {
+            first = last = new Node(ch);
+        } else {
+            Node * node = new Node(ch);
+            node -> prev = last;
+            last -> next = node;
+            last = node;
+        }
+    }
+    void addstr(const string & str) {
+        if (first == nullptr) {
+            first = last = new Node(str);
+        } else {
+            Node * node = new Node(str);
+            node -> prev = last;
+            last -> next = node;
+            last = node;
+        }
+    }
+
+    void printList() {
+        Node * node = first;
+        while (node) {
+            if (node -> num != "-1") {
+                cout << node -> num;
+            } else if (isOperator(node -> data)) {
+                cout << node -> data;
+            }
+            if (node -> next != nullptr) cout << ", ";
+
+            node = node -> next;
+        }
+        cout << "\n";
+    }
+
+    void reverseAddstr(const string & str) {
+        if (first == nullptr) {
+            first = last = new Node(str);
+        } else {
+            Node * node = new Node(str);
+            node->next = first;
+            first->prev = node;
+            first = node;
+        }
+    }
+
+    void reverseprintList() {
+        Node * node = NULL;
+        Node * temp = first;
+        while (temp != NULL) {
+            Node * after = temp -> next;
+            temp -> next = node;
+            node = temp;
+            temp = after;
+        }
+        temp = first;
+        while (temp != NULL) {
+            if (node -> data == '/') {
+                cout << node -> data;
+            }
+            temp = temp -> next;
+        }
+        while (node != NULL) {
+            if (node -> num != "-1") {
+                cout << node -> num;
+            } else if (isOperator(node -> data)) {
+                cout << node -> data;
+            }
+            if (node -> next != nullptr) cout << ", ";
+
+            node = node -> next;
+        }
+        cout << "\n";
+    }
+
+    Node * getFirst() const {
+        return first;
+    }
+
+    private: Node * first,
+    * last;
+};
+
+class Stack { //用pointer建立stack的Class 
+    private: Node * topNode; //紀錄stack最上方 
+
+    public: Stack(): topNode(nullptr) {}
+
+    void clearstack() { //用來delete stack 
+        while (!isEmpty()) {
+            deletetop();
+        }
+    }
+
+    bool isEmpty() const { //確認stack是否為空? 
+        return topNode == nullptr;
+    }
+
+    void push(char c) { //將資料放進stack 
+        Node * newNode = new Node(c);
+        newNode -> next = topNode;
+        topNode = newNode;
+    }
+
+    char pop() { //將最上方的資料印出並刪除 
+        if (isEmpty()) {
+            return '\0';
+        }
+        if (topNode -> data != '(' && topNode -> data != ')')
+            cout << topNode -> data; //<< "clear\n";
+        Node * temp = topNode;
+        char data = topNode -> data;
+        topNode = topNode -> next;
+        delete temp;
+        return data;
+    }
+
+    void deletetop() { //單純刪除不印出 
+        Node * temp = topNode;
+        topNode = topNode -> next;
+        delete temp;
+    }
+
+    char top() const { //查看現在最上面的是甚麼? 
+        if (isEmpty()) {
+            return '\0';
+        }
+        return topNode -> data;
+    }
+};
+
+int priority(char c) { //用來決定+-*/的優先順序， * / 優於 + -
+    switch (c) {
+    case '+':
+        return 2;
+    case '-':
+        return 2;
+    case '*':
+        return 1;
+    case '/':
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+bool isValidExpression(const string & expression) { //檢查是不是合法的中序式 
+    int brackets = 0; //用來判別括號數量是否正確 
+    char prev = '+'; //用來存上一個字元 
+
+    for (char c: expression) {
+        if (c == ' ') {
+            continue; // 跳過空白字元
+        }
+
+        if (isOperator(c)) {
+            if (isOperator(prev)) {
+                cout << "Error3: there is one extra operator.\n";
+                return false; //連續兩個計算符號，錯誤  
+            }
+
+        } else if (c == '(') {
+            brackets++;
+        } else if (c == ')') {
+            brackets--;
+        } else if (isdigit(c)) {
+            if (!isOperator(prev) && !isdigit(prev) && prev != '(') {
+                cout << "Error3: there is one extra operand.\n";
+                return false; //多出的數字，錯誤			
+            }
+
+        } else if (!isdigit(c)) {
+            cout << "Error1:" << c << " is not a legitimate character.\n";
+            return false; // 非法符號， 錯誤 
+        }
+        prev = c; // 存下當前字元 
+    }
+
+    if (brackets != 0) {
+        if (brackets > 0) cout << "Error2: there is an extra open parenthesis.\n"; // 多出前括號 
+        else if (brackets < 0) cout << "Error2: there is an extra close parenthesis.\n"; // 少一個後括號 
+        return false;
+    }
+    return true;
+}
+
+int main() {
+    int command = 0;
+    bool correct = true;
+    GetCommand(command);
+    while (command != 0) { //當指令不為0，就繼續讀取指令 
+        if (command == 1) {
+            string expression;
+            cout << "Input an infix expression: ";
+            cin.ignore(); // 如果在getline前用過cin，就要用ignore把後面沒讀的東西讀掉 
+            getline(cin, expression); // 讀入目標字串 
+            if (expression.length() == 0) { //啥都沒輸入，錯誤 
+                cout << "Error3: there is one extra operator.\n";
+                correct = false;
+                return 0;
+            } else {
+                if (isValidExpression(expression)) { //檢查算式是否合法 
+                    cout << "It is a legitimate infix expression.\n";
+                } else correct = false;
+            }
+            if (correct == true) { //如果算式不合法，就不用繼續了 
+                List list;
+                Stack stack; //建立一個stack 
+                for (size_t i = 0; i < expression.length(); i++) {
+                    if (isdigit(expression[i])) { //如果當前字元是數字 
+                        string save;
+                        int temp = i;
+                        while (isdigit(expression[temp])) {
+                            save.push_back(expression[temp]);
+                            temp++;
+                        }
+                        i = temp - 1;
+                        list.addstr(save);
+                    } else if (!isdigit(expression[i])) { // 如果當前字元不是數字 
+                        if (stack.isEmpty()) { // 如果stack是空的，直接把符號放進去 
+                            stack.push(expression[i]);
+                        } else if (expression[i] == '(') { //左括弧也是直接放 
+                            stack.push(expression[i]);
+                        } else if (isOperator(expression[i])) { //如果是計算符號，就看當前的計算符號有沒有順位大於在stack頂部的符號 
+                            while (priority(expression[i]) <= priority(stack.top())) {
+                                list.add(stack.top());
+                                stack.deletetop();
+                            }
+                            stack.push(expression[i]); //印完再把當前的符號放進去 
+                        } else if (expression[i] == ')') { //如果遇到右括弧 就把遇到左括弧之前的計算符都印出來 
+                            while (stack.top() != '(') {
+                                list.add(stack.top());
+                                stack.deletetop();
+                            }
+                            stack.deletetop(); //然後把左括弧刪掉 
+                        }
+                    }
+                }
+                while (!stack.isEmpty()) { //如果stack裡面還有東西 就印出來 
+                    list.add(stack.top());
+                    stack.deletetop();
+                }
+                list.printList();
+                stack.clearstack(); //釋放記憶體 
+                list.clearlist();
+            }
+        } else if (command == 2) {
+            string expression;
+            cout << "Input an infix expression: ";
+            cin.ignore();
+            getline(cin, expression);
+            if (expression.length() == 0) {
+                cout << "Error3: there is one extra operator.\n";
+                correct = false;
+                return 0;
+            } else {
+                if (isValidExpression(expression)) {
+                    cout << "It is a legitimate infix expression.\n";
+                } else correct = false;
+            }
+        } else {
+            printf("Command does not exist!\n"); //錯誤指令 
+        }
+        GetCommand(command);
+    }
+    return 0;
+}
