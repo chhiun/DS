@@ -2,12 +2,7 @@
 // 有使用C++11 
 
 #include <iostream>
-#include <fstream>
-#include <cmath>
-#include <deque>
-#include <cctype>
 #include <cstring>
-#include <algorithm>
 
 using namespace std;
 
@@ -72,49 +67,31 @@ public:
         }
     }
 
-    void printList() {
-        Node * node = first;
-        while (node) {
-            if (node -> num != "-1") {
-                cout << node -> num;
-            } else if (isOperator(node -> data)) {
-                cout << node -> data;
-            }
-            if (node -> next != nullptr) cout << ", ";
-
-            node = node -> next;
-        }
-        cout << "\n";
-    }
-
-    void reverseAddstr(const string & str) {
+    void addToFront(char c) {
+        Node* node = new Node(c);
         if (first == nullptr) {
-            first = last = new Node(str);
+            first = last = node;
         } else {
-            Node * node = new Node(str);
             node->next = first;
             first->prev = node;
             first = node;
         }
     }
 
-    void reverseprintList() {
-        Node * node = NULL;
-        Node * temp = first;
-        while (temp != NULL) {
-            Node * after = temp -> next;
-            temp -> next = node;
-            node = temp;
-            temp = after;
+    void addToFrontStr(const string &str) {
+        Node* node = new Node(str);
+        if (first == nullptr) {
+            first = last = node;
+        } else {
+            node->next = first;
+            first->prev = node;
+            first = node;
         }
-        temp = first;
-        while (temp != NULL) {
-            if (node -> data == '/') {
-                cout << node -> data;
-            }
-            temp = temp -> next;
-        }
-        while (node != NULL) {
+    }
+
+    void printList() {
+        Node * node = first;
+        while (node) {
             if (node -> num != "-1") {
                 cout << node -> num;
             } else if (isOperator(node -> data)) {
@@ -311,6 +288,53 @@ int main() {
                 if (isValidExpression(expression)) {
                     cout << "It is a legitimate infix expression.\n";
                 } else correct = false;
+            }
+            if (correct) {
+                reverse(expression.begin(), expression.end());
+
+                for (size_t i = 0; i < expression.size(); i++) {
+                    if (expression[i] == '(') expression[i] = ')';
+                    else if (expression[i] == ')') expression[i] = '(';
+                }
+
+                List prefixList;
+                Stack stack;
+                for (size_t i = 0; i < expression.size(); i++) {
+                    if (isdigit(expression[i])) {
+                        string save;
+                        while (i < expression.size() && isdigit(expression[i])) {
+                            save.push_back(expression[i]);
+                            i++;
+                        }
+                        reverse(save.begin(), save.end());
+                        prefixList.addToFrontStr(save);
+                        i--;
+                    } else {
+                        if (stack.isEmpty() || expression[i] == '(') {
+                            stack.push(expression[i]);
+                        } else if (isOperator(expression[i])) {
+                            while (!stack.isEmpty() && priority(expression[i]) < priority(stack.top())) {
+                                prefixList.addToFront(stack.top());
+                                stack.deletetop();
+                            }
+                            stack.push(expression[i]);
+                        } else if (expression[i] == ')') {
+                            while (stack.top() != '(') {
+                                prefixList.addToFront(stack.top());
+                                stack.deletetop();
+                            }
+                            stack.deletetop();
+                        }
+                    }
+                }
+
+                while (!stack.isEmpty()) {
+                    prefixList.addToFront(stack.top());
+                    stack.deletetop();
+                }
+                prefixList.printList();
+                stack.clearstack();
+                prefixList.clearlist();
             }
         } else {
             printf("Command does not exist!\n"); //錯誤指令 
