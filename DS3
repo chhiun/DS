@@ -1,0 +1,192 @@
+// ?餉?銝?11020126 ?剔??
+// 雿輻C++11
+
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <string>
+#include <deque>
+using namespace std;
+
+// Print the menu and read in the command and handle the case where the command is wrong
+void GetCommand(int &command)
+{
+    cout << "\n";
+    cout << "**** Simulate FIFO Queues by SQF *****\n";
+    cout << "* 0. Quit                            *\n";
+    cout << "* 1. Sort a file                     *\n";
+    cout << "* 2. Simulate one FIFO queue         *\n";
+    cout << "**************************************\n";
+    cout << "Input a command(0, 1, 2): ";
+    cin >> command;
+
+    // Invalid command, re-enter
+    if (command != 0 && command != 1 && command != 2 && command != 3) {
+        printf("Command does not exist!\n");
+        GetCommand(command);
+    } else {
+        return;
+    }
+}
+
+void Inputtxt(ifstream &inputFile)
+{
+    string filename;
+    cout << "Input a file number: ";
+    cin >> filename;
+    filename = "input" + filename + ".txt";
+    inputFile.open(filename);
+    if (!inputFile) {
+        cout << "###" << filename << " does not exist! ###" << endl;
+    } 
+}
+
+
+class Node {
+public:
+    int oid, arrival, duration, timeout = 0;
+    Node * next;
+    Node * prev;
+    Node(int oid, int arrival, int duration, int timeout): oid(oid),arrival(arrival),duration(duration),timeout(timeout), next(nullptr), prev(nullptr){}
+};
+
+class List {
+private: 
+	Node * first;
+    Node * last;
+public:
+    List(): first(nullptr),
+    last(nullptr) {}
+
+
+    void clearlist() { // 清空記憶體 
+        while (first != nullptr) {
+            Node * node = first;
+            first = first -> next;
+            delete node;
+        }
+    }
+
+    void add(int oid, int arrival, int duration, int timeout) { //將字元加到後面 
+        if (first == nullptr) {
+            first = last = new Node(oid, arrival, duration, timeout);
+        } else {
+            Node * node = new Node(oid, arrival, duration, timeout);
+            node -> prev = last;
+            last -> next = node;
+            last = node;
+        }
+    }
+	
+    void printList(int &times) {
+        Node * node = first;
+        int count = 1;
+        while(node!=NULL){
+        	cout << "(" << count << ")" << "	";
+        	cout << node->oid << "	";
+        	cout << node-> arrival << "	";
+        	cout << node->duration << "	";
+        	cout << node->timeout << "\n";
+        	node = node->next;
+        	count++;
+		}
+		cout << "\n";
+		times = count-1;
+		
+		
+    }
+	void shellsort1(int n){
+  		int span, i;
+  		span = n/2;
+  		Node * save = first;
+  		while(span>=1){
+  			Node * compare = first ;  			
+    		for(i = 0; i<(n-span); i++){
+    			int j = i;
+
+    			while(j>0){
+    				first = first->next;
+    				j--;					
+				}
+				j = i+span;
+
+    			while(j>0){
+    				compare = compare->next;
+    				j--;		
+				}
+    	
+      			if(first->arrival > compare->arrival){
+      				Node *temp = first;
+      				first = compare;				      				
+      				compare = temp;
+      				
+      			}
+      			else if(first->arrival == compare->arrival){
+      				if(first->oid > compare->oid){
+      				  Node *temp = first;
+      				  first = compare;				      				
+      				  compare = temp;      					
+					}	
+				}
+				
+				first = save;
+    			compare = save;
+    		}
+    	span = span/2;
+  		}
+  		first = save;
+
+
+
+	};
+
+    Node * getFirst() const {
+        return first;
+    }
+
+};
+
+
+
+
+
+int main() {
+    int command = 0;
+    bool correct = true;
+    GetCommand(command);
+    ifstream inputFile;
+    ofstream outputFile;
+    List joblist;
+    int count;
+    int oid, arrival, duration, timeout = 0;
+    while (command != 0) { //當指令不為0，就繼續讀取指令 
+        if (command == 1) {
+            Inputtxt(inputFile);
+            char c;
+            string s;
+			getline(inputFile, s);
+            cout << "	"<< s << "\n";
+			while(!inputFile.eof()){
+				inputFile >> oid;
+				inputFile >> arrival;
+				inputFile >> duration;
+				inputFile >> timeout;
+				joblist.add(oid, arrival, duration, timeout);
+			}            	
+			joblist.printList(count);
+			joblist.shellsort1(count);
+			cout << "sorted:\n";
+			joblist.printList(count);
+            inputFile.close();
+        } 
+		else if (command == 2) {
+            Inputtxt(inputFile);
+            inputFile.close();
+        } 
+		else {
+            printf("Command does not exist!\n"); //錯誤指令 
+        }
+        GetCommand(command);
+    }
+    return 0;
+}
