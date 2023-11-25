@@ -1,63 +1,107 @@
-// ?餉?銝?11020126 ?剔??
-// 雿輻C++11
+// 電資三 11020116 潘皓群  電資三 11020126 鄭祐昀 
 
+
+#include <iostream>
+#include <cstring>
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <string>
 #include <deque>
+#include <time.h>
 using namespace std;
 
-// Print the menu and read in the command and handle the case where the command is wrong
-void GetCommand(int &command)
-{
-    cout << "\n";
-    cout << "**** Simulate FIFO Queues by SQF *****\n";
-    cout << "* 0. Quit                            *\n";
-    cout << "* 1. Sort a file                     *\n";
-    cout << "* 2. Simulate one FIFO queue         *\n";
-    cout << "**************************************\n";
-    cout << "Input a command(0, 1, 2): ";
-    cin >> command;
 
-    // Invalid command, re-enter
-    if (command != 0 && command != 1 && command != 2 && command != 3) {
-        printf("Command does not exist!\n");
-        GetCommand(command);
-    } else {
-        return;
+void GetCommand(int &command{
+    while (true) {
+    	cout << "\n";
+    	cout << "**** Simulate FIFO Queues by SQF *****\n";
+    	cout << "* 0. Quit                            *\n";
+    	cout << "* 1. Sort a file                     *\n";
+    	cout << "* 2. Simulate one FIFO queue         *\n";
+    	cout << "**************************************\n";
+    	cout << "Input a command(0, 1, 2): ";
+        cin >> command;
+
+        // If the command is valid, exit the loop
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "\nCommand does not exist!\n";
+            continue;
+        }
+        if (command >= 0 && command <= 2) {
+            break;
+        } else {
+            cout << "\nCommand does not exist!" << "\n";
+        }
     }
 }
-
-void Inputtxt(ifstream &inputFile)
+void Inputtxt(ifstream &inputFile, string &filenum) // 讀入input的txt 
 {
     string filename;
     cout << "Input a file number: ";
     cin >> filename;
+    filenum = filename;
     filename = "input" + filename + ".txt";
     inputFile.open(filename);
     if (!inputFile) {
         cout << "###" << filename << " does not exist! ###" << endl;
-    } 
+    }
 }
-
-
-class Node {
+class Node {  
 public:
     int oid, arrival, duration, timeout = 0;
     Node * next;
     Node * prev;
-    Node(int oid, int arrival, int duration, int timeout): oid(oid),arrival(arrival),duration(duration),timeout(timeout), next(nullptr), prev(nullptr){}
+    Node * last;
+    Node(int oid, int arrival, int duration, int timeout): oid(oid),arrival(arrival),duration(duration),timeout(timeout), next(nullptr), prev(nullptr), last(nullptr) {}
 };
 
+void swapNodes(Node * cur, Node * target){ //兩node的資料交換 
+	Node * a;
+	Node * b;
+	Node * save;
+	a = cur;
+	b = target;
+	
+	save->oid = a->oid;
+	save->arrival = a->arrival;
+	save->duration = a->duration;
+	save->timeout = a->timeout;
+	
+
+	a->oid = b->oid;
+	a->arrival = b->arrival;
+	a->duration = b->duration;
+	a->timeout = b->timeout;
+	
+	b->oid = save->oid;
+	b->arrival = save->arrival;
+	b->duration = save->duration;
+	b->timeout = save->timeout;			  		
+	
+	
+}
+string Clockms(double clock){ //將clock轉為指定格式的ms 
+	string ms;
+	if(clock == 0){
+		ms = "0.00";
+	}
+	else{
+		ms = to_string(clock);
+		while(ms.length()!=4){
+			ms.pop_back();
+		}
+	}
+	return ms;	
+} 
+
 class List {
-private: 
-	Node * first;
-    Node * last;
 public:
     List(): first(nullptr),
     last(nullptr) {}
-
 
     void clearlist() { // 清空記憶體 
         while (first != nullptr) {
@@ -67,7 +111,7 @@ public:
         }
     }
 
-    void add(int oid, int arrival, int duration, int timeout) { //將字元加到後面 
+    void add(int oid, int arrival, int duration, int timeout) { //將資料加到後面 
         if (first == nullptr) {
             first = last = new Node(oid, arrival, duration, timeout);
         } else {
@@ -77,8 +121,21 @@ public:
             last = node;
         }
     }
+
+    void addToFront(int oid, int arrival, int duration, int timeout) { //將資料加到前面  
+        Node* node = new Node(oid, arrival, duration, timeout);
+        if (first == nullptr) {
+            first = last = node;
+        } else {
+            node->next = first;
+            first->prev = node;
+            first = node;
+        }
+    }
+
+
 	
-    void printList(int &times) {
+    void printList(int &times) { 
         Node * node = first;
         int count = 1;
         while(node!=NULL){
@@ -95,17 +152,22 @@ public:
 		
 		
     }
-	void shellsort1(int n){
+
+    Node * getFirst() const {
+        return first;
+    }
+ 	
+	void shellsort(int n){ 
   		int span, i;
   		span = n/2;
-  		Node * save = first;
+  		Node * cur = first;
   		while(span>=1){
   			Node * compare = first ;  			
     		for(i = 0; i<(n-span); i++){
     			int j = i;
 
     			while(j>0){
-    				first = first->next;
+    				cur = cur->next;
     				j--;					
 				}
 				j = i+span;
@@ -115,72 +177,154 @@ public:
     				j--;		
 				}
     	
-      			if(first->arrival > compare->arrival){
-      				Node *temp = first;
-      				first = compare;				      				
-      				compare = temp;
+      			if(cur->arrival > compare->arrival){
+      				swapNodes(cur,compare);	
+
       				
       			}
-      			else if(first->arrival == compare->arrival){
-      				if(first->oid > compare->oid){
-      				  Node *temp = first;
-      				  first = compare;				      				
-      				  compare = temp;      					
+      			else if(cur->arrival == compare->arrival){
+      				if(cur->oid > compare->oid){
+     					swapNodes(cur,compare);	
 					}	
 				}
 				
-				first = save;
-    			compare = save;
+				cur = first;
+    			compare = first;
     		}
     	span = span/2;
   		}
-  		first = save;
-
-
-
 	};
+ 	void writefile(ofstream &outputFile){ //把list內的data寫入txt內 
+ 		Node * a = first;
+ 		outputFile << "OID	Arrival	Duration	TimeOut\n";		
+		while(a!=NULL){
+			outputFile << a->oid << "	";
+			outputFile << a->arrival << "	";
+			outputFile << a->duration << "	";
+			outputFile << a->timeout << "\n";
+			a = a->next;			
+		}
+ 		
+	}
 
-    Node * getFirst() const {
-        return first;
-    }
-
+    private: Node * first,
+    * last;
 };
 
+class Queue { //非常非常基礎的東西 基本上是拿上次的stack改的，目前應該用不太了? 
+    private: Node * first; 
 
+    public: Queue(): first(nullptr) {}
 
+    void clearqueue() { 
+        while (!isEmpty()) {
+            deletefirst();
+        }
+    }
+
+    bool isEmpty() const { 
+        return first == nullptr;
+    }
+
+    void push(int oid, int arrival, int duration, int timeout) { 
+        Node * newNode = new Node(oid, arrival, duration, timeout);
+        newNode -> next = first;
+        first = newNode;
+    }
+
+    int dequeue() { 
+        if (isEmpty()) {
+            return '\0';
+        }
+        cout << first -> oid; 
+        Node * temp = first;
+        int oid = first -> oid;
+        first = first -> next;
+        delete temp;
+        return oid;
+    }
+
+    void deletefirst() { 
+        Node * temp = first;
+        first = first -> next;
+        delete temp;
+    }
+
+    char getfirst() const {  
+        if (isEmpty()) {
+            return '\0';
+        }
+        return first -> oid;
+    }
+};
 
 
 int main() {
     int command = 0;
-    bool correct = true;
     GetCommand(command);
     ifstream inputFile;
     ofstream outputFile;
     List joblist;
-    int count;
+    string filenum;
     int oid, arrival, duration, timeout = 0;
+    double read, sort, write = 0;
+    string readms, sortms, writems;
+    double start, end = 0; // for計時 
+    
     while (command != 0) { //當指令不為0，就繼續讀取指令 
+    	int count =0;
         if (command == 1) {
-            Inputtxt(inputFile);
-            char c;
+        	Inputtxt(inputFile, filenum);
             string s;
-			getline(inputFile, s);
-            cout << "	"<< s << "\n";
-			while(!inputFile.eof()){
-				inputFile >> oid;
-				inputFile >> arrival;
-				inputFile >> duration;
-				inputFile >> timeout;
-				joblist.add(oid, arrival, duration, timeout);
-			}            	
-			joblist.printList(count);
-			joblist.shellsort1(count);
-			cout << "sorted:\n";
-			joblist.printList(count);
-            inputFile.close();
+            
+			getline(inputFile, s); //把第一行的oid arrival...讀掉 
+            if(inputFile.eof()){ // 如果txt內沒東西 就結束 
+            	cout << "\n### Get nothing from the file input" << filenum << ".txt ! ###\n" ;
+			}
+			else{
+            	cout << "	"<< s << "\n";   //印出剛剛讀的oid arrival...         
+            	start = clock(); // 計時讀檔所花的時間 
+				while(!inputFile.eof()){
+					inputFile >> oid;
+					inputFile >> arrival;
+					inputFile >> duration;
+					inputFile >> timeout;
+					joblist.add(oid, arrival, duration, timeout);
+				}
+				end = clock();  
+				read = (end - start);  // 讀檔結束 		         	
+				joblist.printList(count);
+				
+				start = clock(); //計時排序 
+				joblist.shellsort(count);
+				end = clock(); 
+				sort = end - start;//排序結束 
+			
+				filenum = "sorted" + filenum + ".txt";
+				outputFile.open(filenum); //建立sorted的txt
+				 
+				start = clock();//計時寫檔 
+				joblist.writefile(outputFile);
+				end = clock(); 
+				write = end - start;//寫檔結束 
+			
+				readms = Clockms(read);
+				sortms = Clockms(sort);
+				writems = Clockms(write);  //將clock轉換為指定格式的ms 
+
+				cout << "Reading data: " << read << " clocks (" << readms <<"ms).\n";
+				cout << "Sorting data: " << sort << " clocks (" << sortms << "ms).\n";
+				cout << "Writing data: " << write << " clocks ("<< writems <<"ms).\n";
+				cout << "\nSee " << filenum <<"\n";
+
+			}
+			count =0;
+			joblist.clearlist();
+            inputFile.close();     
+			outputFile.close(); //清理記憶體  	
         } 
 		else if (command == 2) {
-            Inputtxt(inputFile);
+            Inputtxt(inputFile, filenum);
             inputFile.close();
         } 
 		else {
