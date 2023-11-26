@@ -408,9 +408,9 @@ int main() {
 				std::string sortms = Clockms(sorting_time);
 				std::string writems = Clockms(writing_time);  //將clock轉換為指定格式的ms 
 
-				std::cout << "\nReading data: " << reading_time << " clocks (" << readms <<"ms).\n";
-				std::cout << "Sorting data: " << sorting_time << " clocks (" << sortms << "ms).\n";
-				std::cout << "Writing data: " << writing_time << " clocks ("<< writems <<"ms).\n";
+				std::cout << "\nReading data: " << reading_time << " clocks (" << readms <<" ms).\n";
+				std::cout << "Sorting data: " << sorting_time << " clocks (" << sortms << " ms).\n";
+				std::cout << "Writing data: " << writing_time << " clocks ("<< writems << " ms).\n";
 				std::cout << "\nSee sorted" << fileNumber <<".txt\n";
         	}
         } else if (command == 2) {
