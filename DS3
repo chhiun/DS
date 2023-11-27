@@ -241,25 +241,18 @@ void simulateSingleCpuQueue(const std::vector<Job> &sortedJobs, std::vector<Done
     while (index < sortedJobs.size() || !cpuQueue.isEmpty()) {
         // Enqueue jobs that have arrived
         while (index < sortedJobs.size() && sortedJobs[index].getArrival() <= currentTime) {
-            std::cout << "Current time: " << currentTime << std::endl;
-            const Job &job = sortedJobs[index];
-            std::cout << "Trying to enqueue job OID: " << job.getOID() << " at time: " << job.getArrival() << std::endl;
+            const Job &job = sortedJobs[index++];
             if (!cpuQueue.enqueue(job)) {
-                std::cout << "Queue is full. Aborting job OID: " << job.getOID() << "\n";
                 // If queue is full, job is aborted immediately
                 abortList.push_back({job.getOID(), job.getArrival(), 0});
             }
-            std::cout << "Job OID: " << job.getOID() << " enqueued.\n";
-            index++;
         }
 
         // Process job from the queue
         if (!cpuQueue.isEmpty()) {
             Job job = cpuQueue.peek();
-            std::cout << "Processing job OID: " << job.getOID() << " with timeout at: " << job.getTimeOut() << std::endl;
             // Check if the job has exceeded its timeout before starting
             if (currentTime >= job.getTimeOut()) {
-                std::cout << "Job OID: " << job.getOID() << " has timed out before starting.\n";
                 // Abort job with timeout at current time
                 cpuQueue.dequeue(); // Remove job from queue
                 abortList.push_back({job.getOID(), currentTime, currentTime - job.getArrival()});
@@ -281,12 +274,9 @@ void simulateSingleCpuQueue(const std::vector<Job> &sortedJobs, std::vector<Done
                 }
             }
         } else {
-            std::cout << "Queue is empty. No jobs to process.\n";
             // If queue is empty, move to the time of next arriving job
             if (index < sortedJobs.size()) {
-                std::cout << "Advancing current time from " << currentTime;
                 currentTime = sortedJobs[index].getArrival();
-                std::cout << " to " << currentTime << " due to idle CPU.\n";
             }
         }
     }
