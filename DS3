@@ -268,8 +268,9 @@ void simulateSingleCpuQueue(const std::vector<Job> &sortedJobs, std::vector<Done
                     currentTime = finishTime; // Update current time
                 } else {
                     // Abort job due to timeout when it would finish
+					currentTime = job.getTimeOut(); // Update current time to timeout 
                     abortList.push_back({job.getOID(), job.getTimeOut(), currentTime - job.getArrival()});
-                    currentTime = job.getTimeOut(); // Update current time to timeout
+                   
                 }
             }
         } else {
