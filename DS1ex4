@@ -53,7 +53,7 @@ void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // 讀入input�
 	}
 }
 
-typedef struct{
+typedef struct{ // 用來各自存讀進的所有資料 
     string schoolcode = "-1";
     string schoolname;
     
@@ -68,26 +68,23 @@ typedef struct{
 	string system;	
 } Schooldata;
 
-class List {
+class List { //以vector建立Schooldata的List 
 private: 
 	vector<Schooldata> alldata;
-	int filenum;
 
 public:
-	List(): filenum(0) {}
     void clearlist() { // 清空記憶體 
 		alldata.clear();
     }
-    void add(Schooldata data){
+    void add(Schooldata data){ // 加入list 
     	alldata.push_back(data);
 	}
-	
-    Schooldata getdata(int i) {
+    int getsize(){ // 回傳資料數量 
+    	return alldata.size();
+	}	
+    Schooldata getdata(int i) { // 以下都是獲取第i個資料的某項資訊 
 		return alldata[i];
     }
-    int getsize(){
-    	return alldata.size();
-	}
 	int getgraduate(int i){
 		Schooldata temp = alldata[i];
 		return temp.graduatenum; 
@@ -101,7 +98,7 @@ public:
 		string target = temp.schoolcode;
 		return stoi(target);
 	}
-	void sort(){
+	void sort(){ //按照school code進行排序，但和教授的排序不同，這個大概要改 
 		for(int i = 0; i <alldata.size(); i++){
 			for(int j = 0 ; j < i; j++){
 				Schooldata cur = alldata[i];
@@ -140,7 +137,7 @@ public:
 
 
 template <typename T>
-class TreeNode {
+class TreeNode { //for建立BST的節點，每個節點存一個schooldata 
 public:
     T data;
     Schooldata schooldata;
@@ -148,9 +145,7 @@ public:
     TreeNode* right;
 
     TreeNode(T val, Schooldata target) : data(val), left(nullptr), right(nullptr),schooldata(target) {}
-    void setSchooldata(Schooldata target){
-    	schooldata = target;
-	}
+
 };
 
 template <typename T>
@@ -158,7 +153,7 @@ class BinarySearchTree {
 private:
     TreeNode<T>* root;
 	
-    TreeNode<T>* insert(TreeNode<T>* node, T value, Schooldata data) {
+    TreeNode<T>* insert(TreeNode<T>* node, T value, Schooldata data) { //不然就是insert要改?可能我放的順序跟教授不一樣?? 
         if (node == nullptr) {
             return new TreeNode<T>(value, data);
         }
@@ -172,7 +167,7 @@ private:
         return node;
     }
 
-    void findGreater(TreeNode<T>* node, int target, List &result) {
+    void findGreater(TreeNode<T>* node, int target, List &result) { // for任務二，找到的東西會存進List裡面 
         if (node == nullptr) {
             return;
         }
@@ -187,7 +182,7 @@ private:
 
         findGreater(node->right, target, result);
     }
-    void findSame(TreeNode<T>* node, string target, List &result) {
+    void findSame(TreeNode<T>* node, string target, List &result) { // for任務三，找到的東西會存進List裡面 
         if (node == nullptr) {
             return;
         }
@@ -202,7 +197,7 @@ private:
 
         findSame(node->right, target, result);
     }
-    int height(TreeNode<T>* node) {
+    int height(TreeNode<T>* node) { //查詢樹高 
         if (node == nullptr) {
             return 0;
         }
@@ -212,7 +207,7 @@ private:
 
         return 1 + std::max(leftHeight, rightHeight);
     }
-    void clear(TreeNode<T>* node) {
+    void clear(TreeNode<T>* node) { // 釋放空間 
         if (node == nullptr) {
             return;
         }
@@ -222,7 +217,7 @@ private:
         delete node;
     }
 public:
-    BinarySearchTree() : root(nullptr) {}
+    BinarySearchTree() : root(nullptr) {} //for外部呼叫 
 
     void insert(T value, Schooldata data) {
         root = insert(root, value, data);
@@ -282,13 +277,13 @@ int main() {
             	cout << "\nThere is no data!\n"  ;
 			}
 			else{
+				datalist.clearlist();
+				gradtree.clear();
+				nametree.clear();  //每次重新執行command==1才把tree和list的空間放掉，不然都以上次執行的資料來做
 				cout << s1 << "\n";
 				cout << s2 << "\n";
 				cout << "	學校名稱	科系名稱	日間∕進修別	等級別	學生數	教師數	上學年度畢業生數" << "\n";
-				datalist.clearlist();
-				gradtree.clear();
-				nametree.clear();
-				while(!inputFile.eof()){
+				while(!inputFile.eof()){ //用stringstream分割並把資料存進list 
 					Schooldata data;
 					string temp;
 					stringstream ss;
@@ -322,7 +317,7 @@ int main() {
 					data.system =data.system + temp + " ";
 					ss >> temp;
 					data.system = data.system + temp; // add system
-					if(data.schoolcode!="-1"){
+					if(data.schoolcode!="-1"){ //避免放錯東西 
 						datalist.add(data);
 					}
 					
@@ -333,10 +328,10 @@ int main() {
 
 				datalist.printlist();
 				for(int i = 0; i < datalist.getsize(); i ++){
-					gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
+					gradtree.insert(datalist.getgraduate(i), datalist.getdata(i)); //以畢業人數為key建立一個Tree 
 				}
 				for(int i = 0; i < datalist.getsize(); i ++){
-					nametree.insert(datalist.getname(i), datalist.getdata(i));
+					nametree.insert(datalist.getname(i), datalist.getdata(i)); // 以學校名字為key建立一個Tree 
 				}				
 				cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
 				cout << "Tree height {Number of graduates} ="<< gradtree.getHeight() << "\n";
@@ -351,18 +346,35 @@ int main() {
 			}
 			else{
 				List savelist;
-				int target;
+				string input;
+				int target = -1;
+				bool check = true;
 				cout << "Input the number of graduates:";
-				cin >> target;
-				savelist = gradtree.findGreater(target);
-				if(savelist.getsize()==0){
+				cin >> input;
+				for(int i = 0; i< input.size(); i ++){ //檢查輸入字串是否為數字 
+					if(!isdigit(input[i])){
+						check = false;
+					}
+				}
+				if(check==false){ 
+					cout<< "### the input string "<< input << " is not a decimal number! ###\n" ;
 					cout << "There is no match!\n";
+					
 				}
 				else{
-					savelist.sort();
-					savelist.printlist();
-				}
-				savelist.clearlist();
+				
+					target = stoi(input);
+					cout << target;
+					savelist = gradtree.findGreater(target); //找到的目標會在這個List裡面 
+					if(savelist.getsize()==0){
+						cout << "There is no match!\n";
+					}
+					else{
+						savelist.sort(); //按school code排序 
+						savelist.printlist(); 
+					}
+					savelist.clearlist();
+				} 
 			}
         }
         else if (command == 3){
@@ -374,12 +386,12 @@ int main() {
 				string target;
 				cout << "Input a school name:";
 				cin >> target;
-				savelist = nametree.findSame(target);
+				savelist = nametree.findSame(target); //找到的目標會在這個List裡面  
 				if(savelist.getsize()==0){
 					cout << "There is no match!\n";
 				}
 				else{
-					savelist.sort();
+					savelist.sort(); //按school code排序  
 					savelist.printlist();
 				}
 				savelist.clearlist();
