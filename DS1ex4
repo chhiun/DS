@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+
 using namespace std;
 
 void GetCommand(int &command) {
@@ -49,14 +50,13 @@ void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // 讀入input�
         check = false;
     }
     else{
-    	check = true;
-	}
+        check = true;
+    }
 }
 
-typedef struct{ // 用來各自存讀進的所有資料 
+struct Schooldata { // 用來各自存讀進的所有資料 
     string schoolcode = "-1";
     string schoolname;
-    
     string departcode;
     string departname;
     string type;
@@ -64,74 +64,68 @@ typedef struct{ // 用來各自存讀進的所有資料
     int studentnum;
     int professornum;
     int graduatenum;
-	string city;
-	string system;	
-} Schooldata;
+    string city;
+    string system;
+};
 
 class List { //以vector建立Schooldata的List 
 private: 
-	vector<Schooldata> alldata;
+    vector<Schooldata> alldata;
 
 public:
     void clearlist() { // 清空記憶體 
-		alldata.clear();
+        alldata.clear();
     }
     void add(Schooldata data){ // 加入list 
-    	alldata.push_back(data);
-	}
-    int getsize(){ // 回傳資料數量 
-    	return alldata.size();
-	}	
-    Schooldata getdata(int i) { // 以下都是獲取第i個資料的某項資訊 
-		return alldata[i];
+        alldata.push_back(data);
     }
-	int getgraduate(int i){
-		Schooldata temp = alldata[i];
-		return temp.graduatenum; 
-	}
-	string getname(int i){
-		Schooldata temp = alldata[i];
-		return temp.schoolname;		
-	}
-	int getschoolcode(int i){
-		Schooldata temp = alldata[i];
-		string target = temp.schoolcode;
-		return stoi(target);
-	}
-	void sort(){ //按照school code進行排序，但和教授的排序不同，這個大概要改 
-		for(int i = 0; i <alldata.size(); i++){
-			for(int j = 0 ; j < i; j++){
-				Schooldata cur = alldata[i];
-				Schooldata compare = alldata[j];
-				string curs = cur.schoolcode;
-				string coms = compare.schoolcode;
-				if(stoi(curs) < stoi(coms)){
-					Schooldata temp = cur;
-					alldata[i] = compare;
-					alldata[j] = temp;
-				} 
-			}
-		}
-	}
-	void printlist(){
-		Schooldata data;
-		for(int i = 0; i < alldata.size(); i ++){
-			data = alldata[i];
-			cout << "[" << i+1 << "]\t";
-			//cout << data.schoolcode << "\t";
-			cout << data.schoolname << "\t";
-			//cout << data.departcode << "\t";
-			cout << data.departname << "\t";
-			cout << data.type << "\t";
-			cout << data.level << "\t";	
-			cout << data.studentnum << "\t";
-			cout << data.professornum << "\t";	
-			cout << data.graduatenum << "\t";
-			//cout << data.city << "\t";
-			//cout << data.system << "\n";
-			cout << "\n";			
-		}
-	}
+    int getsize(){ // 回傳資料數量 
+        return alldata.size();
+    }	
+    Schooldata getdata(int i) { // 以下都是獲取第i個資料的某項資訊 
+        return alldata[i];
+    }
+    int getgraduate(int i){
+        Schooldata temp = alldata[i];
+        return temp.graduatenum; 
+    }
+    string getname(int i){
+        Schooldata temp = alldata[i];
+        return temp.schoolname;		
+    }
+    int getschoolcode(int i){
+        Schooldata temp = alldata[i];
+        string target = temp.schoolcode;
+        return stoi(target);
+    }
+    void sort() { // 按照school code進行排序
+        for (int i = 0; i < alldata.size(); i++) {
+            for (int j = 0; j < i; j++) {
+                if (stoi(alldata[i].schoolcode) < stoi(alldata[j].schoolcode)) {
+                    std::swap(alldata[i], alldata[j]); // 使用std::swap進行元素交換
+                }
+            }
+        }
+    }
+    void printlist(){
+        Schooldata data;
+        for(int i = 0; i < alldata.size(); i ++){
+            data = alldata[i];
+            cout << "[" << i+1 << "]\t";
+            //cout << data.schoolcode << "\t";
+            cout << data.schoolname << "\t";
+            //cout << data.departcode << "\t";
+            cout << data.departname << "\t";
+            cout << data.type << "\t";
+            cout << data.level << "\t";	
+            cout << data.studentnum << "\t";
+            cout << data.professornum << "\t";	
+            cout << data.graduatenum << "\t";
+            //cout << data.city << "\t";
+            //cout << data.system << "\n";
+            cout << "\n";			
+        }
+    }
 
 };
 
@@ -152,7 +146,7 @@ template <typename T>
 class BinarySearchTree {
 private:
     TreeNode<T>* root;
-	
+    
     TreeNode<T>* insert(TreeNode<T>* node, T value, Schooldata data) { //不然就是insert要改?可能我放的順序跟教授不一樣?? 
         if (node == nullptr) {
             return new TreeNode<T>(value, data);
@@ -245,10 +239,6 @@ public:
     }
 };
 
-
-
-
-
 int main() {
     int command = 0;
     GetCommand(command);
@@ -261,147 +251,135 @@ int main() {
     bool check = false;
     
     while (command != 0) { //當指令不為0，就繼續讀取指令 
-    	int count =0;
+        int count =0;
         if (command == 1) {
-        	Inputtxt(inputFile, filenum, check);
+            Inputtxt(inputFile, filenum, check);
             string s;   
             string s1, s2;
-			getline(inputFile, s1); 
-			getline(inputFile, s2);
-			getline(inputFile, s);
-			s.clear();       
+            getline(inputFile, s1); 
+            getline(inputFile, s2);
+            getline(inputFile, s);
+            s.clear();       
             if(inputFile.eof() || check == false){ // 如果txt內沒東西 就結束 
-            	if(inputFile.eof()){
-            		cout << "\n### Get nothing from the file input" << filenum << ".txt ! ###\n" ;	
-				}
-            	cout << "\nThere is no data!\n"  ;
-			}
-			else{
-				datalist.clearlist();
-				gradtree.clear();
-				nametree.clear();  //每次重新執行command==1才把tree和list的空間放掉，不然都以上次執行的資料來做
-				cout << s1 << "\n";
-				cout << s2 << "\n";
-				cout << "	學校名稱	科系名稱	日間∕進修別	等級別	學生數	教師數	上學年度畢業生數" << "\n";
-				while(!inputFile.eof()){ //用stringstream分割並把資料存進list 
-					Schooldata data;
-					string temp;
-					stringstream ss;
-					getline(inputFile, s);
-					ss << s;
-					
-					ss >> data.schoolcode;
-					ss >> data.schoolname;
-					ss >> data.departcode;
-					ss >> data.departname;
-					
-					ss >> temp;
-					data.type = data.type + temp + " ";
-					ss >> temp;
-					data.type = data.type + temp ; // add type
-					
-					ss >> temp;
-					data.level = data.level + temp + " ";
-					ss >> temp;
-					data.level = data.level + temp ; // add level
-					
-					ss >> data.studentnum;
-					ss >> data.professornum;
-					ss >> data.graduatenum;
-					ss >> temp;
-					data.city =data.city + temp + " ";
-					ss >> temp;
-					data.city = data.city + temp; // add city
-					
-					ss >> temp;
-					data.system =data.system + temp + " ";
-					ss >> temp;
-					data.system = data.system + temp; // add system
-					if(data.schoolcode!="-1"){ //避免放錯東西 
-						datalist.add(data);
-					}
-					
-					ss.clear();
-					ss.str("");
-
-				}
-
-				datalist.printlist();
-				for(int i = 0; i < datalist.getsize(); i ++){
-					gradtree.insert(datalist.getgraduate(i), datalist.getdata(i)); //以畢業人數為key建立一個Tree 
-				}
-				for(int i = 0; i < datalist.getsize(); i ++){
-					nametree.insert(datalist.getname(i), datalist.getdata(i)); // 以學校名字為key建立一個Tree 
-				}				
-				cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
-				cout << "Tree height {Number of graduates} ="<< gradtree.getHeight() << "\n";
-
-			}
-
-			inputFile.close();
+                if(inputFile.eof()){
+                    cout << "\n### Get nothing from the file input" << filenum << ".txt ! ###\n" ;	
+                }
+                cout << "\nThere is no data!\n"  ;
+            }
+            else{
+                datalist.clearlist();
+                gradtree.clear();
+                nametree.clear();  //每次重新執行command==1才把tree和list的空間放掉，不然都以上次執行的資料來做
+                cout << s1 << "\n";
+                cout << s2 << "\n";
+                cout << "	學校名稱	科系名稱	日間∕進修別	等級別	學生數	教師數	上學年度畢業生數" << "\n";
+                while(!inputFile.eof()){ //用stringstream分割並把資料存進list 
+                    Schooldata data;
+                    string temp;
+                    stringstream ss;
+                    getline(inputFile, s);
+                    ss << s;
+                    ss >> data.schoolcode;
+                    ss >> data.schoolname;
+                    ss >> data.departcode;
+                    ss >> data.departname;
+                    ss >> temp;
+                    data.type = data.type + temp + " ";
+                    ss >> temp;
+                    data.type = data.type + temp ; // add type
+                    ss >> temp;
+                    data.level = data.level + temp + " ";
+                    ss >> temp;
+                    data.level = data.level + temp ; // add level
+                    ss >> data.studentnum;
+                    ss >> data.professornum;
+                    ss >> data.graduatenum;
+                    ss >> temp;
+                    data.city =data.city + temp + " ";
+                    ss >> temp;
+                    data.city = data.city + temp; // add city
+                    ss >> temp;
+                    data.system =data.system + temp + " ";
+                    ss >> temp;
+                    data.system = data.system + temp; // add system
+                    if(data.schoolcode!="-1"){ //避免放錯東西 
+                        datalist.add(data);
+                    }
+                    ss.clear();
+                    ss.str("");
+                }
+                datalist.printlist();
+                for(int i = 0; i < datalist.getsize(); i ++){
+                    gradtree.insert(datalist.getgraduate(i), datalist.getdata(i)); //以畢業人數為key建立一個Tree 
+                }
+                for(int i = 0; i < datalist.getsize(); i ++){
+                    nametree.insert(datalist.getname(i), datalist.getdata(i)); // 以學校名字為key建立一個Tree 
+                }				
+                cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
+                cout << "Tree height {Number of graduates} ="<< gradtree.getHeight() << "\n";
+            }
+            inputFile.close();
         } 
-		else if (command == 2) {
-			if(gradtree.getHeight()==0){
-				cout << "\nPlease choose command 1 first!\n";
-			}
-			else{
-				List savelist;
-				string input;
-				int target = -1;
-				bool check = true;
-				cout << "Input the number of graduates:";
-				cin >> input;
-				for(int i = 0; i< input.size(); i ++){ //檢查輸入字串是否為數字 
-					if(!isdigit(input[i])){
-						check = false;
-					}
-				}
-				if(check==false){ 
-					cout<< "### the input string "<< input << " is not a decimal number! ###\n" ;
-					cout << "There is no match!\n";
-					
-				}
-				else{
-				
-					target = stoi(input);
-					cout << target;
-					savelist = gradtree.findGreater(target); //找到的目標會在這個List裡面 
-					if(savelist.getsize()==0){
-						cout << "There is no match!\n";
-					}
-					else{
-						savelist.sort(); //按school code排序 
-						savelist.printlist(); 
-					}
-					savelist.clearlist();
-				} 
-			}
+        else if (command == 2) {
+            if(gradtree.getHeight()==0){
+                cout << "\nPlease choose command 1 first!\n";
+            }
+            else{
+                List savelist;
+                string input;
+                int target = -1;
+                bool check = true;
+                cout << "Input the number of graduates:";
+                cin >> input;
+                for(int i = 0; i< input.size(); i ++){ //檢查輸入字串是否為數字 
+                    if(!isdigit(input[i])){
+                        check = false;
+                    }
+                }
+                if(check==false){ 
+                    cout<< "### the input string "<< input << " is not a decimal number! ###\n" ;
+                    cout << "There is no match!\n";
+                    
+                }
+                else{
+                    target = stoi(input);
+                    cout << "Search results:" << "\n";
+                    savelist = gradtree.findGreater(target); //找到的目標會在這個List裡面 
+                    if(savelist.getsize()==0){
+                        cout << "There is no match!\n";
+                    }
+                    else{
+                        savelist.sort(); //按school code排序 
+                        savelist.printlist(); 
+                    }
+                    savelist.clearlist();
+                } 
+            }
         }
         else if (command == 3){
-			if(nametree.getHeight()==0){
-				cout << "\nPlease choose command 1 first!\n";
-			}
-			else{
-				List savelist;
-				string target;
-				cout << "Input a school name:";
-				cin >> target;
-				savelist = nametree.findSame(target); //找到的目標會在這個List裡面  
-				if(savelist.getsize()==0){
-					cout << "There is no match!\n";
-				}
-				else{
-					savelist.sort(); //按school code排序  
-					savelist.printlist();
-				}
-				savelist.clearlist();
-			}
-		} 
-		else {
+            if(nametree.getHeight()==0){
+                cout << "\nPlease choose command 1 first!\n";
+            }
+            else{
+                List savelist;
+                string target;
+                cout << "Input a school name:";
+                cin >> target;
+                savelist = nametree.findSame(target); //找到的目標會在這個List裡面  
+                if(savelist.getsize()==0){
+                    cout << "There is no match!\n";
+                }
+                else{
+                    savelist.sort(); //按school code排序  
+                    savelist.printlist();
+                }
+                savelist.clearlist();
+            }
+        } 
+        else {
             printf("Command does not exist!\n"); //錯誤指令 
         }
         GetCommand(command);
     }
     return 0;
 }
-
