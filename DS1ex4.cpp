@@ -10,8 +10,7 @@
 
 using namespace std;
 
-void GetCommand(int &command)
-{
+void GetCommand(int &command) {
     while (true) {
         std::cout << "\n";
         std::cout << "*** University Graduate Information System ***\n";
@@ -19,6 +18,7 @@ void GetCommand(int &command)
         std::cout << "* 1. Create Two Binary Search Trees          *\n";
         std::cout << "* 2. Search by Number of Graduates           *\n";
         std::cout << "* 3. Search by School Name                   *\n";
+        std::cout << "* 4. Removal by Number of Graduates          *\n";
         std::cout << "**********************************************\n";
         std::cout << "Input a command(0, 1-4): ";
         std::cin >> command;
@@ -30,10 +30,10 @@ void GetCommand(int &command)
             std::cout << "\nCommand does not exist!\n";
             continue;
         }
-        if (command >= 0 && command <= 3) {
+        if (command >= 0 && command <= 4) {
             break;
         } else {
-            std::cout << "\nCommand does not exist!" << endl;
+            std::cout << "\nCommand does not exist!" << "\n";
         }
     }
 }
@@ -107,7 +107,12 @@ public:
 
         return temp.graduatenum;
     }
-
+    
+	void deletetarget(int i){
+		Schooldata temp = alldata[i];
+		alldata.erase(alldata.begin()+i);
+	}
+	
     string getname(int i)
     {
         Schooldata temp = alldata[i];
@@ -126,9 +131,12 @@ public:
     // 按照school code進行排序
     void sort()
     {
-        for (int i = 0; i < alldata.size(); i++) {
-            for (int j = 0; j < i; j++) {
-                if (stoi(alldata[i].schoolcode) < stoi(alldata[j].schoolcode)) {
+        for (int i = 0; i < alldata.size(); i++)
+        {
+            for (int j = 0; j < i; j++)
+            {
+                if (stoi(alldata[i].schoolcode) < stoi(alldata[j].schoolcode))
+                {
                     // 使用std::swap進行元素交換
                     std::swap(alldata[i], alldata[j]);
                 }
@@ -174,7 +182,7 @@ template <typename T> class BinarySearchTree
 private:
     TreeNode<T> *root;
 
-    // 不然就是insert要改?可能我放的順序跟教授不一樣??
+    
     TreeNode<T> *insert(TreeNode<T> *node, T value, Schooldata data)
     {
         if (node == nullptr) {
@@ -225,6 +233,22 @@ private:
 
         findSame(node->right, target, result);
     }
+    void findless(TreeNode<T> *node, int target, List &result)
+    {
+        if (node == nullptr) {
+            return;
+        }
+
+        if (node->data <= target) {
+            result.add(node->schooldata);
+        }
+
+        if (target > node->data) {
+            findless(node->right, target, result);
+        }
+
+        findless(node->left, target, result);
+    }
 
     // 查詢樹高
     int height(TreeNode<T> *node)
@@ -251,6 +275,50 @@ private:
 
         delete node;
     }
+    
+    TreeNode<T>* remove(TreeNode<T>*& node, T value) 
+	{
+        if (node == nullptr) {
+            return nullptr;
+        }
+
+        if (value < node->data) {
+            node->left = remove(node->left, value);
+        } else if (value > node->data) {
+            node->right = remove(node->right, value);
+        } else {
+            if (node->left == nullptr) {
+                TreeNode<T>* temp = node->right;
+                delete node;
+                return temp;
+            } else if (node->right == nullptr) {
+                TreeNode<T>* temp = node->left;
+                delete node;
+                return temp;
+            }
+
+            // Node with two children: Get the inorder successor (smallest
+            // in the right subtree)
+            TreeNode<T>* temp = minValueNode(node->right);
+
+            // Copy the inorder successor's data to this node
+            node->data = temp->data;
+
+            // Delete the inorder successor
+            node->right = remove(node->right, temp->data);
+        }
+
+        return node;
+    }
+
+    TreeNode<T>* minValueNode(TreeNode<T>* node) 
+	{
+        TreeNode<T>* current = node;
+        while (current->left != nullptr) {
+            current = current->left;
+        }
+        return current;
+    }
 
 public:
     // for外部呼叫
@@ -268,7 +336,13 @@ public:
 
         return result;
     }
+    List findless(int target)
+    {
+        List result;
+        findless(root, target, result);
 
+        return result;
+    }
     List findSame(string target)
     {
         List result;
@@ -291,6 +365,10 @@ public:
     {
         clear(root);
         root = nullptr;
+    }
+    void remove(T value) 
+	{
+        root = remove(root, value);
     }
 };
 
@@ -327,9 +405,9 @@ int main()
                 gradtree.clear();
                 // 每次重新執行command==1才把tree和list的空間放掉，不然都以上次執行的資料來做
                 nametree.clear();
-                cout << s1 << "\n";
-                cout << s2 << "\n";
-                cout << "	學校名稱	科系名稱	日間∕進修別	等級別	學生數	教師數	上學年度畢業生數" << endl;
+                //cout << s1 << "\n";
+                //cout << s2 << "\n";
+                //cout << "	學校名稱	科系名稱	日間∕進修別	等級別	學生數	教師數	上學年度畢業生數" << endl;
                 // 用stringstream分割並把資料存進list
                 while (!inputFile.eof()) {
                     Schooldata data;
@@ -367,7 +445,7 @@ int main()
                     ss.clear();
                     ss.str("");
                 }
-                datalist.printlist();
+                //datalist.printlist();
 
                 for (int i = 0; i < datalist.getsize(); i++) {
                     // 以畢業人數為key建立一個Tree
@@ -379,7 +457,7 @@ int main()
                     nametree.insert(datalist.getname(i), datalist.getdata(i));
                 }
                 cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
-                cout << "Tree height {Number of graduates} =" << gradtree.getHeight() << "\n";
+                cout << "Tree height {Number of graduates} = " << gradtree.getHeight() << "\n";
             }
             inputFile.close();
         } else if (command == 2) {
@@ -436,6 +514,62 @@ int main()
                 }
                 savelist.clearlist();
             }
+        }
+        else if (command == 4) {
+            if(gradtree.getHeight()==0){
+                cout << "\nPlease choose command 1 first!\n";
+            }
+            else{
+                List savelist;
+                string input;
+                int target = -1;
+                bool check = true;
+                cout << "Input the number of graduates:";
+                cin >> input;
+                for(int i = 0; i< input.size(); i ++){ //檢查輸入字串是否為數字 
+                    if(!isdigit(input[i])){
+                        check = false;
+                    }
+                }
+                if(check==false){ 
+                    cout<< "### the input string "<< input << " is not a decimal number! ###\n" ;
+                    cout << "There is no match!\n";
+                    
+                } else{
+                    target = stoi(input);
+                    List newlist;
+                    for(int i = 0; i < datalist.getsize(); i++){ //將大於該目標的資料保留下來 
+                    	if(datalist.getgraduate(i) >= target){
+                    		newlist.add(datalist.getdata(i));
+						}
+					}
+					savelist = gradtree.findless(target); // for印出delete record 
+					datalist.clearlist(); 
+					datalist = newlist; // 將原本的資料替換為刪除後的資料 
+                    if(savelist.getsize()==0){
+                        cout << "There is no match!\n";
+                    }
+                    else{
+						cout << "Deleted records:" << "\n"; 
+                        savelist.printlist(); 
+                    }
+					nametree.clear();
+					gradtree.clear();  
+                	for (int i = 0; i < datalist.getsize(); i++) {
+                    	// 重新已刪除後的list建立，以畢業人數為key建立一個Tree
+                    	gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
+                	}
+
+                	for (int i = 0; i < datalist.getsize(); i++) {
+                    	// 重新已刪除後的list建立，以學校名字為key建立一個Tree
+                    	nametree.insert(datalist.getname(i), datalist.getdata(i));
+                	}
+                }
+                cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
+                cout << "Tree height {Number of graduates} = "<< gradtree.getHeight() << "\n";
+                savelist.clearlist();
+            }
+        
         } else {
             printf("Command does not exist!\n"); // 錯誤指令
         }
