@@ -459,29 +459,12 @@ void StoreData(const string &line, Schooldata &data, const string &separator)
     data.departname = tokens[3];
     data.type = tokens[4]; // 日間 / 進修別
     data.level = tokens[5]; // 等級別
-    try {
-        string studentStr = removeFuckingCommas(tokens[6]);
-        data.studentnum = studentStr.empty() ? 0 : stoi(studentStr); // 學生數
-    } catch (const std::invalid_argument &ia) {
-        std::cerr << "Invalid argument for student number: " << tokens[6] << " in line: " << line << '\n';
-        data.studentnum = 0;
-    }
-
-    try {
-        string professorStr = removeFuckingCommas(tokens[7]);
-        data.professornum = professorStr.empty() ? 0 : stoi(professorStr); // 教師數
-    } catch (const std::invalid_argument &ia) {
-        std::cerr << "Invalid argument for professor number: " << tokens[7] << " in line: " << line << '\n';
-        data.professornum = 0;
-    }
-
-    try {
-        string graduateStr = removeFuckingCommas(tokens[8]);
-        data.graduatenum = graduateStr.empty() ? 0 : stoi(graduateStr); // 畢業生數
-    } catch (const std::invalid_argument &ia) {
-        std::cerr << "Invalid argument for graduate number: " << tokens[8] << " in line: " << line << '\n';
-        data.graduatenum = 0;
-    }
+    string studentStr = removeFuckingCommas(tokens[6]);
+    data.studentnum = studentStr.empty() ? 0 : stoi(studentStr); // 學生數
+    string professorStr = removeFuckingCommas(tokens[7]);
+    data.professornum = professorStr.empty() ? 0 : stoi(professorStr); // 教師數
+    string graduateStr = removeFuckingCommas(tokens[8]);
+    data.graduatenum = graduateStr.empty() ? 0 : stoi(graduateStr); // 畢業生數
     data.city = tokens[9]; // 城市
     data.system = tokens[10]; // 系統別
 }
