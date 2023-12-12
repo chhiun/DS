@@ -10,7 +10,8 @@
 
 using namespace std;
 
-void GetCommand(int &command) {
+void GetCommand(int &command)
+{
     while (true) {
         std::cout << "\n";
         std::cout << "*** University Graduate Information System ***\n";
@@ -108,11 +109,11 @@ public:
         return temp.graduatenum;
     }
     
-	void deletetarget(int i){
-		Schooldata temp = alldata[i];
-		alldata.erase(alldata.begin()+i);
-	}
-	
+    void deletetarget(int i){
+        Schooldata temp = alldata[i];
+        alldata.erase(alldata.begin()+i);
+    }
+    
     string getname(int i)
     {
         Schooldata temp = alldata[i];
@@ -277,7 +278,7 @@ private:
     }
     
     TreeNode<T>* remove(TreeNode<T>*& node, T value) 
-	{
+    {
         if (node == nullptr) {
             return nullptr;
         }
@@ -312,7 +313,7 @@ private:
     }
 
     TreeNode<T>* minValueNode(TreeNode<T>* node) 
-	{
+    {
         TreeNode<T>* current = node;
         while (current->left != nullptr) {
             current = current->left;
@@ -367,10 +368,40 @@ public:
         root = nullptr;
     }
     void remove(T value) 
-	{
+    {
         root = remove(root, value);
     }
 };
+
+void StoreData(const string &line, Schooldata &data, const string &separator)
+{
+    vector<string> tokens;
+    stringstream ss(line);
+    string token;
+    
+    // 使用 getline 配合 separator 中的分隔符把每一項資料分割開來
+    while (getline(ss, token, separator[0])) {
+        tokens.push_back(token);
+    }
+
+    // 如果 tokens 的數目不夠，則將剩餘的欄位填充為空白
+    while (tokens.size() < 11) {
+        tokens.push_back("");
+    }
+
+    // 為 Schooldata 中的每個成員賦值，待會填充空值
+    data.schoolcode = tokens[0];
+    data.schoolname = tokens[1];
+    data.departcode = tokens[2];
+    data.departname = tokens[3];
+    data.type = tokens[4]; // 日間 / 進修別
+    data.level = tokens[5]; // 等級別
+    data.studentnum = tokens[6].empty() ? 0 : stoi(tokens[6]); // 學生數
+    data.professornum = tokens[7].empty() ? 0 : stoi(tokens[7]); // 教師數
+    data.graduatenum = tokens[8].empty() ? 0 : stoi(tokens[8]); // 畢業生數
+    data.city = tokens[9]; // 城市
+    data.system = tokens[10]; // 系統別
+}
 
 int main()
 {
@@ -411,39 +442,13 @@ int main()
                 // 用stringstream分割並把資料存進list
                 while (!inputFile.eof()) {
                     Schooldata data;
-                    string temp;
-                    stringstream ss;
                     getline(inputFile, s);
-                    ss << s;
-                    ss >> data.schoolcode;
-                    ss >> data.schoolname;
-                    ss >> data.departcode;
-                    ss >> data.departname;
-                    ss >> temp;
-                    data.type = data.type + temp + " ";
-                    ss >> temp;
-                    data.type = data.type + temp; // add type
-                    ss >> temp;
-                    data.level = data.level + temp + " ";
-                    ss >> temp;
-                    data.level = data.level + temp; // add level
-                    ss >> data.studentnum;
-                    ss >> data.professornum;
-                    ss >> data.graduatenum;
-                    ss >> temp;
-                    data.city = data.city + temp + " ";
-                    ss >> temp;
-                    data.city = data.city + temp; // add city
-                    ss >> temp;
-                    data.system = data.system + temp + " ";
-                    ss >> temp;
-                    data.system = data.system + temp; // add system
+                    // 呼叫新的方法，並傳入分隔符號，這裡使用 '\t' 代表 Tab 分隔符號
+                    StoreData(s, data, "\t");
                     // 避免放錯東西
                     if (data.schoolcode != "-1") {
                         datalist.add(data);
                     }
-                    ss.clear();
-                    ss.str("");
                 }
                 //datalist.printlist();
 
@@ -514,62 +519,61 @@ int main()
                 }
                 savelist.clearlist();
             }
-        }
-        else if (command == 4) {
-            if(gradtree.getHeight()==0){
+        } else if (command == 4) {
+            if (gradtree.getHeight() == 0) {
                 cout << "\nPlease choose command 1 first!\n";
-            }
-            else{
+            } else {
                 List savelist;
                 string input;
                 int target = -1;
                 bool check = true;
                 cout << "Input the number of graduates:";
                 cin >> input;
-                for(int i = 0; i< input.size(); i ++){ //檢查輸入字串是否為數字 
-                    if(!isdigit(input[i])){
+                // 檢查輸入字串是否為數字
+                for (int i = 0; i< input.size(); i ++) {
+                    if (!isdigit(input[i])) {
                         check = false;
                     }
                 }
-                if(check==false){ 
+                if (check == false) { 
                     cout<< "### the input string "<< input << " is not a decimal number! ###\n" ;
                     cout << "There is no match!\n";
-                    
-                } else{
+                } else {
                     target = stoi(input);
                     List newlist;
-                    for(int i = 0; i < datalist.getsize(); i++){ //將大於該目標的資料保留下來 
-                    	if(datalist.getgraduate(i) >= target){
-                    		newlist.add(datalist.getdata(i));
-						}
-					}
-					savelist = gradtree.findless(target); // for印出delete record 
-					datalist.clearlist(); 
-					datalist = newlist; // 將原本的資料替換為刪除後的資料 
-                    if(savelist.getsize()==0){
-                        cout << "There is no match!\n";
+                    // 將大於該目標的資料保留下來
+                    for (int i = 0; i < datalist.getsize(); i++) {
+                        if (datalist.getgraduate(i) >= target) {
+                            newlist.add(datalist.getdata(i));
+                        }
                     }
-                    else{
-						cout << "Deleted records:" << "\n"; 
+                    // for 印出 delete record
+                    savelist = gradtree.findless(target);
+                    datalist.clearlist();
+                    // 將原本的資料替換為刪除後的資料
+                    datalist = newlist;
+                    if (savelist.getsize() == 0) {
+                        cout << "There is no match!\n";
+                    } else {
+                        cout << "Deleted records:" << "\n"; 
                         savelist.printlist(); 
                     }
-					nametree.clear();
-					gradtree.clear();  
-                	for (int i = 0; i < datalist.getsize(); i++) {
-                    	// 重新已刪除後的list建立，以畢業人數為key建立一個Tree
-                    	gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
-                	}
+                    nametree.clear();
+                    gradtree.clear();  
+                    for (int i = 0; i < datalist.getsize(); i++) {
+                        // 重新已刪除後的list建立，以畢業人數為key建立一個Tree
+                        gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
+                    }
 
-                	for (int i = 0; i < datalist.getsize(); i++) {
-                    	// 重新已刪除後的list建立，以學校名字為key建立一個Tree
-                    	nametree.insert(datalist.getname(i), datalist.getdata(i));
-                	}
+                    for (int i = 0; i < datalist.getsize(); i++) {
+                        // 重新已刪除後的list建立，以學校名字為key建立一個Tree
+                        nametree.insert(datalist.getname(i), datalist.getdata(i));
+                    }
                 }
                 cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
                 cout << "Tree height {Number of graduates} = "<< gradtree.getHeight() << "\n";
                 savelist.clearlist();
             }
-        
         } else {
             printf("Command does not exist!\n"); // 錯誤指令
         }
