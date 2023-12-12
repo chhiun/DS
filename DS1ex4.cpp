@@ -126,12 +126,9 @@ public:
     // 按照school code進行排序
     void sort()
     {
-        for (int i = 0; i < alldata.size(); i++)
-        {
-            for (int j = 0; j < i; j++)
-            {
-                if (stoi(alldata[i].schoolcode) < stoi(alldata[j].schoolcode))
-                {
+        for (int i = 0; i < alldata.size(); i++) {
+            for (int j = 0; j < i; j++) {
+                if (stoi(alldata[i].schoolcode) < stoi(alldata[j].schoolcode)) {
                     // 使用std::swap進行元素交換
                     std::swap(alldata[i], alldata[j]);
                 }
@@ -169,7 +166,7 @@ public:
     Schooldata schooldata;
     TreeNode *left;
     TreeNode *right;
-    TreeNode(T val, Schooldata target) : data(val), left(nullptr), right(nullptr), schooldata(target) {}
+    TreeNode(T val, Schooldata target) : data(val), schooldata(target), left(nullptr), right(nullptr) {}
 };
 
 template <typename T> class BinarySearchTree
