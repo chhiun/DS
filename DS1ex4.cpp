@@ -244,7 +244,7 @@ private:
             result.add(node->schooldata);
         }
 
-        if (target > node->data) {
+        if (target >= node->data) {
             findless(node->right, target, result);
         }
 
@@ -333,7 +333,7 @@ private:
         node->right = removeAllLessThan(node->right, value);
 
         // If the current node's data is less than the value, remove it
-        if (node->data < value) {
+        if (node->data <= value) {
             return removeNode(node);  // Utilizes the existing remove logic for a single node
         }
 
@@ -575,37 +575,61 @@ int main()
                 }
                 savelist.clearlist();
             }
-        } else if (command == 4) {
-            if (gradtree.getHeight() == 0) {
+        }else if (command == 4) {
+            if(gradtree.getHeight()==0){
                 cout << "\nPlease choose command 1 first!\n";
-            } else {
+            }
+            else{
+                List savelist;
                 string input;
                 int target = -1;
                 bool check = true;
                 cout << "Input the number of graduates:";
                 cin >> input;
-                for (auto ch : input) {
-                    if (!isdigit(ch)) {
+                for(int i = 0; i< input.size(); i ++){ //檢查輸入字串是否為數字 
+                    if(!isdigit(input[i])){
                         check = false;
-                        break;
                     }
                 }
-                if (!check) {
-                    cout << "### the input string " << input << " is not a decimal number! ###\n";
+                if(check==false){ 
+                    cout<< "### the input string "<< input << " is not a decimal number! ###\n" ;
                     cout << "There is no match!\n";
-                } else {
+                    
+                } else{
                     target = stoi(input);
-                    List deletedList = gradtree.findless(target - 1); // 查找所有畢業生數量小於目標的節點
-                    gradtree.removeLessThan(target);
-                    if (deletedList.getsize() > 0) {
-                        cout << "Deleted records:\n";
-                        deletedList.printlist();
-                    } else {
-                        cout << "There are no records with graduates less than " << target << "\n";
+                    List newlist;
+                    for(int i = 0; i < datalist.getsize(); i++){ //將大於該目標的資料保留下來 
+                    	if(datalist.getgraduate(i) > target){
+                    		newlist.add(datalist.getdata(i));
+						}
+					}
+					savelist = gradtree.findless(target); // for印出delete record 
+					datalist.clearlist(); 
+					datalist = newlist; // 將原本的資料替換為刪除後的資料 
+                    if(savelist.getsize()==0){
+                        cout << "There is no match!\n";
                     }
-                    cout << "Tree height {Number of graduates} = " << gradtree.getHeight() << "\n";
+                    else{
+						cout << "Deleted records:" << "\n"; 
+                        savelist.printlist(); 
+                    }
+					nametree.clear();
+					gradtree.clear();  
+                	for (int i = 0; i < datalist.getsize(); i++) {
+                    	// 重新已刪除後的list建立，以畢業人數為key建立一個Tree
+                    	gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
+                	}
+
+                	for (int i = 0; i < datalist.getsize(); i++) {
+                    	// 重新已刪除後的list建立，以學校名字為key建立一個Tree
+                    	nametree.insert(datalist.getname(i), datalist.getdata(i));
+                	}
                 }
+                cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
+                cout << "Tree height {Number of graduates} = "<< gradtree.getHeight() << "\n";
+                savelist.clearlist();
             }
+        
         } else {
             printf("Command does not exist!\n"); // 錯誤指令
         }
