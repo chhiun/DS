@@ -429,6 +429,13 @@ public:
     }
 };
 
+string removeFuckingCommas(string str) {
+    str.erase(remove(str.begin(), str.end(), ','), str.end());
+    str.erase(remove(str.begin(), str.end(), '\"'), str.end());
+
+    return str;
+}
+
 void StoreData(const string &line, Schooldata &data, const string &separator)
 {
     vector<string> tokens;
@@ -452,9 +459,29 @@ void StoreData(const string &line, Schooldata &data, const string &separator)
     data.departname = tokens[3];
     data.type = tokens[4]; // 日間 / 進修別
     data.level = tokens[5]; // 等級別
-    data.studentnum = tokens[6].empty() ? 0 : stoi(tokens[6]); // 學生數
-    data.professornum = tokens[7].empty() ? 0 : stoi(tokens[7]); // 教師數
-    data.graduatenum = tokens[8].empty() ? 0 : stoi(tokens[8]); // 畢業生數
+    try {
+        string studentStr = removeFuckingCommas(tokens[6]);
+        data.studentnum = studentStr.empty() ? 0 : stoi(studentStr); // 學生數
+    } catch (const std::invalid_argument &ia) {
+        std::cerr << "Invalid argument for student number: " << tokens[6] << " in line: " << line << '\n';
+        data.studentnum = 0;
+    }
+
+    try {
+        string professorStr = removeFuckingCommas(tokens[7]);
+        data.professornum = professorStr.empty() ? 0 : stoi(professorStr); // 教師數
+    } catch (const std::invalid_argument &ia) {
+        std::cerr << "Invalid argument for professor number: " << tokens[7] << " in line: " << line << '\n';
+        data.professornum = 0;
+    }
+
+    try {
+        string graduateStr = removeFuckingCommas(tokens[8]);
+        data.graduatenum = graduateStr.empty() ? 0 : stoi(graduateStr); // 畢業生數
+    } catch (const std::invalid_argument &ia) {
+        std::cerr << "Invalid argument for graduate number: " << tokens[8] << " in line: " << line << '\n';
+        data.graduatenum = 0;
+    }
     data.city = tokens[9]; // 城市
     data.system = tokens[10]; // 系統別
 }
@@ -599,37 +626,36 @@ int main()
                     target = stoi(input);
                     List newlist;
                     for(int i = 0; i < datalist.getsize(); i++){ //將大於該目標的資料保留下來 
-                    	if(datalist.getgraduate(i) > target){
-                    		newlist.add(datalist.getdata(i));
-						}
-					}
-					savelist = gradtree.findless(target); // for印出delete record 
-					datalist.clearlist(); 
-					datalist = newlist; // 將原本的資料替換為刪除後的資料 
+                        if(datalist.getgraduate(i) > target){
+                            newlist.add(datalist.getdata(i));
+                        }
+                    }
+                    savelist = gradtree.findless(target); // for印出delete record 
+                    datalist.clearlist(); 
+                    datalist = newlist; // 將原本的資料替換為刪除後的資料 
                     if(savelist.getsize()==0){
                         cout << "There is no match!\n";
                     }
                     else{
-						cout << "Deleted records:" << "\n"; 
+                        cout << "Deleted records:" << "\n"; 
                         savelist.printlist(); 
                     }
-					nametree.clear();
-					gradtree.clear();  
-                	for (int i = 0; i < datalist.getsize(); i++) {
-                    	// 重新已刪除後的list建立，以畢業人數為key建立一個Tree
-                    	gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
-                	}
+                    nametree.clear();
+                    gradtree.clear();  
+                    for (int i = 0; i < datalist.getsize(); i++) {
+                        // 重新已刪除後的list建立，以畢業人數為key建立一個Tree
+                        gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
+                    }
 
-                	for (int i = 0; i < datalist.getsize(); i++) {
-                    	// 重新已刪除後的list建立，以學校名字為key建立一個Tree
-                    	nametree.insert(datalist.getname(i), datalist.getdata(i));
-                	}
+                    for (int i = 0; i < datalist.getsize(); i++) {
+                        // 重新已刪除後的list建立，以學校名字為key建立一個Tree
+                        nametree.insert(datalist.getname(i), datalist.getdata(i));
+                    }
                 }
                 cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
                 cout << "Tree height {Number of graduates} = "<< gradtree.getHeight() << "\n";
                 savelist.clearlist();
             }
-        
         } else {
             printf("Command does not exist!\n"); // 錯誤指令
         }
