@@ -373,6 +373,36 @@ public:
     }
 };
 
+void StoreData(const string &line, Schooldata &data, const string &separator)
+{
+    vector<string> tokens;
+    stringstream ss(line);
+    string token;
+    
+    // 使用 getline 配合 separator 中的分隔符把每一項資料分割開來
+    while (getline(ss, token, separator[0])) {
+        tokens.push_back(token);
+    }
+
+    // 如果 tokens 的數目不夠，則將剩餘的欄位填充為空白
+    while (tokens.size() < 11) {
+        tokens.push_back("");
+    }
+
+    // 為 Schooldata 中的每個成員賦值，待會填充空值
+    data.schoolcode = tokens[0];
+    data.schoolname = tokens[1];
+    data.departcode = tokens[2];
+    data.departname = tokens[3];
+    data.type = tokens[4]; // 日間 / 進修別
+    data.level = tokens[5]; // 等級別
+    data.studentnum = tokens[6].empty() ? 0 : stoi(tokens[6]); // 學生數
+    data.professornum = tokens[7].empty() ? 0 : stoi(tokens[7]); // 教師數
+    data.graduatenum = tokens[8].empty() ? 0 : stoi(tokens[8]); // 畢業生數
+    data.city = tokens[9]; // 城市
+    data.system = tokens[10]; // 系統別
+}
+
 int main()
 {
     int command = 0;
@@ -412,39 +442,13 @@ int main()
                 // 用stringstream分割並把資料存進list
                 while (!inputFile.eof()) {
                     Schooldata data;
-                    string temp;
-                    stringstream ss;
                     getline(inputFile, s);
-                    ss << s;
-                    ss >> data.schoolcode;
-                    ss >> data.schoolname;
-                    ss >> data.departcode;
-                    ss >> data.departname;
-                    ss >> temp;
-                    data.type = data.type + temp + " ";
-                    ss >> temp;
-                    data.type = data.type + temp; // add type
-                    ss >> temp;
-                    data.level = data.level + temp + " ";
-                    ss >> temp;
-                    data.level = data.level + temp; // add level
-                    ss >> data.studentnum;
-                    ss >> data.professornum;
-                    ss >> data.graduatenum;
-                    ss >> temp;
-                    data.city = data.city + temp + " ";
-                    ss >> temp;
-                    data.city = data.city + temp; // add city
-                    ss >> temp;
-                    data.system = data.system + temp + " ";
-                    ss >> temp;
-                    data.system = data.system + temp; // add system
+                    // 呼叫新的方法，並傳入分隔符號，這裡使用 '\t' 代表 Tab 分隔符號
+                    StoreData(s, data, "\t");
                     // 避免放錯東西
                     if (data.schoolcode != "-1") {
                         datalist.add(data);
                     }
-                    ss.clear();
-                    ss.str("");
                 }
                 //datalist.printlist();
 
@@ -516,11 +520,6 @@ int main()
                 savelist.clearlist();
             }
         } else if (command == 4) {
-            ofstream outputFile("out.txt");
-            if (!outputFile) {
-                cerr << "Unable to open file out.txt" << endl;
-                return 1;
-            }
             if (gradtree.getHeight() == 0) {
                 cout << "\nPlease choose command 1 first!\n";
             } else {
@@ -557,20 +556,7 @@ int main()
                         cout << "There is no match!\n";
                     } else {
                         cout << "Deleted records:" << "\n"; 
-                        savelist.printlist();
-                        outputFile << "Deleted records:\n";
-                        for (int i = 0; i < savelist.getsize(); i++) {
-                            Schooldata data = savelist.getdata(i);
-                            outputFile << "[" << i + 1 << "]\t";
-                            outputFile << data.schoolname << "\t";
-                            outputFile << data.departname << "\t";
-                            outputFile << data.type << "\t";
-                            outputFile << data.level << "\t";
-                            outputFile << data.studentnum << "\t";
-                            outputFile << data.professornum << "\t";
-                            outputFile << data.graduatenum << "\t";
-                            outputFile << "\n";
-                        }
+                        savelist.printlist(); 
                     }
                     nametree.clear();
                     gradtree.clear();  
@@ -587,7 +573,6 @@ int main()
                 cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
                 cout << "Tree height {Number of graduates} = "<< gradtree.getHeight() << "\n";
                 savelist.clearlist();
-                outputFile.close();
             }
         } else {
             printf("Command does not exist!\n"); // 錯誤指令
