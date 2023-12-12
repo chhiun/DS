@@ -10,7 +10,8 @@
 
 using namespace std;
 
-void GetCommand(int &command) {
+void GetCommand(int &command)
+{
     while (true) {
         std::cout << "\n";
         std::cout << "*** University Graduate Information System ***\n";
@@ -108,11 +109,11 @@ public:
         return temp.graduatenum;
     }
     
-	void deletetarget(int i){
-		Schooldata temp = alldata[i];
-		alldata.erase(alldata.begin()+i);
-	}
-	
+    void deletetarget(int i){
+        Schooldata temp = alldata[i];
+        alldata.erase(alldata.begin()+i);
+    }
+    
     string getname(int i)
     {
         Schooldata temp = alldata[i];
@@ -277,7 +278,7 @@ private:
     }
     
     TreeNode<T>* remove(TreeNode<T>*& node, T value) 
-	{
+    {
         if (node == nullptr) {
             return nullptr;
         }
@@ -312,7 +313,7 @@ private:
     }
 
     TreeNode<T>* minValueNode(TreeNode<T>* node) 
-	{
+    {
         TreeNode<T>* current = node;
         while (current->left != nullptr) {
             current = current->left;
@@ -367,7 +368,7 @@ public:
         root = nullptr;
     }
     void remove(T value) 
-	{
+    {
         root = remove(root, value);
     }
 };
@@ -514,62 +515,80 @@ int main()
                 }
                 savelist.clearlist();
             }
-        }
-        else if (command == 4) {
-            if(gradtree.getHeight()==0){
-                cout << "\nPlease choose command 1 first!\n";
+        } else if (command == 4) {
+            ofstream outputFile("out.txt");
+            if (!outputFile) {
+                cerr << "Unable to open file out.txt" << endl;
+                return 1;
             }
-            else{
+            if (gradtree.getHeight() == 0) {
+                cout << "\nPlease choose command 1 first!\n";
+            } else {
                 List savelist;
                 string input;
                 int target = -1;
                 bool check = true;
                 cout << "Input the number of graduates:";
                 cin >> input;
-                for(int i = 0; i< input.size(); i ++){ //檢查輸入字串是否為數字 
-                    if(!isdigit(input[i])){
+                // 檢查輸入字串是否為數字
+                for (int i = 0; i< input.size(); i ++) {
+                    if (!isdigit(input[i])) {
                         check = false;
                     }
                 }
-                if(check==false){ 
+                if (check == false) { 
                     cout<< "### the input string "<< input << " is not a decimal number! ###\n" ;
                     cout << "There is no match!\n";
-                    
-                } else{
+                } else {
                     target = stoi(input);
                     List newlist;
-                    for(int i = 0; i < datalist.getsize(); i++){ //將大於該目標的資料保留下來 
-                    	if(datalist.getgraduate(i) >= target){
-                    		newlist.add(datalist.getdata(i));
-						}
-					}
-					savelist = gradtree.findless(target); // for印出delete record 
-					datalist.clearlist(); 
-					datalist = newlist; // 將原本的資料替換為刪除後的資料 
-                    if(savelist.getsize()==0){
+                    // 將大於該目標的資料保留下來
+                    for (int i = 0; i < datalist.getsize(); i++) {
+                        if (datalist.getgraduate(i) >= target) {
+                            newlist.add(datalist.getdata(i));
+                        }
+                    }
+                    // for 印出 delete record
+                    savelist = gradtree.findless(target);
+                    datalist.clearlist();
+                    // 將原本的資料替換為刪除後的資料
+                    datalist = newlist;
+                    if (savelist.getsize() == 0) {
                         cout << "There is no match!\n";
+                    } else {
+                        cout << "Deleted records:" << "\n"; 
+                        savelist.printlist();
+                        outputFile << "Deleted records:\n";
+                        for (int i = 0; i < savelist.getsize(); i++) {
+                            Schooldata data = savelist.getdata(i);
+                            outputFile << "[" << i + 1 << "]\t";
+                            outputFile << data.schoolname << "\t";
+                            outputFile << data.departname << "\t";
+                            outputFile << data.type << "\t";
+                            outputFile << data.level << "\t";
+                            outputFile << data.studentnum << "\t";
+                            outputFile << data.professornum << "\t";
+                            outputFile << data.graduatenum << "\t";
+                            outputFile << "\n";
+                        }
                     }
-                    else{
-						cout << "Deleted records:" << "\n"; 
-                        savelist.printlist(); 
+                    nametree.clear();
+                    gradtree.clear();  
+                    for (int i = 0; i < datalist.getsize(); i++) {
+                        // 重新已刪除後的list建立，以畢業人數為key建立一個Tree
+                        gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
                     }
-					nametree.clear();
-					gradtree.clear();  
-                	for (int i = 0; i < datalist.getsize(); i++) {
-                    	// 重新已刪除後的list建立，以畢業人數為key建立一個Tree
-                    	gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
-                	}
 
-                	for (int i = 0; i < datalist.getsize(); i++) {
-                    	// 重新已刪除後的list建立，以學校名字為key建立一個Tree
-                    	nametree.insert(datalist.getname(i), datalist.getdata(i));
-                	}
+                    for (int i = 0; i < datalist.getsize(); i++) {
+                        // 重新已刪除後的list建立，以學校名字為key建立一個Tree
+                        nametree.insert(datalist.getname(i), datalist.getdata(i));
+                    }
                 }
                 cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
                 cout << "Tree height {Number of graduates} = "<< gradtree.getHeight() << "\n";
                 savelist.clearlist();
+                outputFile.close();
             }
-        
         } else {
             printf("Command does not exist!\n"); // 錯誤指令
         }
