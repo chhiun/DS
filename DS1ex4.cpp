@@ -183,7 +183,6 @@ template <typename T> class BinarySearchTree
 private:
     TreeNode<T> *root;
 
-    
     TreeNode<T> *insert(TreeNode<T> *node, T value, Schooldata data)
     {
         if (node == nullptr) {
@@ -234,6 +233,7 @@ private:
 
         findSame(node->right, target, result);
     }
+
     void findless(TreeNode<T> *node, int target, List &result)
     {
         if (node == nullptr) {
@@ -276,7 +276,7 @@ private:
 
         delete node;
     }
-    
+
     TreeNode<T>* remove(TreeNode<T>*& node, T value) 
     {
         if (node == nullptr) {
@@ -319,6 +319,57 @@ private:
             current = current->left;
         }
         return current;
+    }
+
+    // Helper method to recursively remove all nodes whose data is less than the given value
+    TreeNode<T>* removeAllLessThan(TreeNode<T>* node, T value)
+    {
+        if (node == nullptr) {
+            return nullptr;
+        }
+
+        // Recursively call the method on the right and left subtrees
+        node->left = removeAllLessThan(node->left, value);
+        node->right = removeAllLessThan(node->right, value);
+
+        // If the current node's data is less than the value, remove it
+        if (node->data < value) {
+            return removeNode(node);  // Utilizes the existing remove logic for a single node
+        }
+
+        // Return the possibly updated current node
+        return node;
+    }
+
+    // Reuses the logic from `remove` but without needing to search for the node
+    TreeNode<T>* removeNode(TreeNode<T>* node)
+    {
+        if (node == nullptr) {
+            return nullptr;
+        }
+
+        if (node->left == nullptr) {
+            TreeNode<T>* temp = node->right;
+            delete node;
+            return temp;
+        } else if (node->right == nullptr) {
+            TreeNode<T>* temp = node->left;
+            delete node;
+            return temp;
+        }
+
+        // Node with two children: Get the inorder successor (smallest
+        // in the right subtree)
+        TreeNode<T>* temp = minValueNode(node->right);
+
+        // Copy the inorder successor's data and schooldata to this node
+        node->data = temp->data;
+        node->schooldata = temp->schooldata;
+
+        // Delete the inorder successor
+        node->right = remove(node->right, temp->data);
+
+        return node;
     }
 
 public:
@@ -370,6 +421,11 @@ public:
     void remove(T value) 
     {
         root = remove(root, value);
+    }
+
+    // Public method to remove all nodes with values less than the given value
+    void removeLessThan(T value) {
+        root = removeAllLessThan(root, value);
     }
 };
 
@@ -523,56 +579,32 @@ int main()
             if (gradtree.getHeight() == 0) {
                 cout << "\nPlease choose command 1 first!\n";
             } else {
-                List savelist;
                 string input;
                 int target = -1;
                 bool check = true;
                 cout << "Input the number of graduates:";
                 cin >> input;
-                // 檢查輸入字串是否為數字
-                for (int i = 0; i< input.size(); i ++) {
-                    if (!isdigit(input[i])) {
+                for (auto ch : input) {
+                    if (!isdigit(ch)) {
                         check = false;
+                        break;
                     }
                 }
-                if (check == false) { 
-                    cout<< "### the input string "<< input << " is not a decimal number! ###\n" ;
+                if (!check) {
+                    cout << "### the input string " << input << " is not a decimal number! ###\n";
                     cout << "There is no match!\n";
                 } else {
                     target = stoi(input);
-                    List newlist;
-                    // 將大於該目標的資料保留下來
-                    for (int i = 0; i < datalist.getsize(); i++) {
-                        if (datalist.getgraduate(i) >= target) {
-                            newlist.add(datalist.getdata(i));
-                        }
-                    }
-                    // for 印出 delete record
-                    savelist = gradtree.findless(target);
-                    datalist.clearlist();
-                    // 將原本的資料替換為刪除後的資料
-                    datalist = newlist;
-                    if (savelist.getsize() == 0) {
-                        cout << "There is no match!\n";
+                    List deletedList = gradtree.findless(target - 1); // 查找所有畢業生數量小於目標的節點
+                    gradtree.removeLessThan(target);
+                    if (deletedList.getsize() > 0) {
+                        cout << "Deleted records:\n";
+                        deletedList.printlist();
                     } else {
-                        cout << "Deleted records:" << "\n"; 
-                        savelist.printlist(); 
+                        cout << "There are no records with graduates less than " << target << "\n";
                     }
-                    nametree.clear();
-                    gradtree.clear();  
-                    for (int i = 0; i < datalist.getsize(); i++) {
-                        // 重新已刪除後的list建立，以畢業人數為key建立一個Tree
-                        gradtree.insert(datalist.getgraduate(i), datalist.getdata(i));
-                    }
-
-                    for (int i = 0; i < datalist.getsize(); i++) {
-                        // 重新已刪除後的list建立，以學校名字為key建立一個Tree
-                        nametree.insert(datalist.getname(i), datalist.getdata(i));
-                    }
+                    cout << "Tree height {Number of graduates} = " << gradtree.getHeight() << "\n";
                 }
-                cout << "Tree height {School name} = " << nametree.getHeight() << "\n";
-                cout << "Tree height {Number of graduates} = "<< gradtree.getHeight() << "\n";
-                savelist.clearlist();
             }
         } else {
             printf("Command does not exist!\n"); // 錯誤指令
