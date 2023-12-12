@@ -446,7 +446,7 @@ int main()
                     // 呼叫新的方法，並傳入分隔符號，這裡使用 '\t' 代表 Tab 分隔符號
                     StoreData(s, data, "\t");
                     // 避免放錯東西
-                    if (data.schoolcode != "-1") {
+                    if (data.schoolcode != "-1" && !data.schoolcode.empty()) {
                         datalist.add(data);
                     }
                 }
