@@ -288,19 +288,23 @@ private:
         } else if (value > node->data) {
             node->right = remove(node->right, value);
         } else {
+            // 如果是葉節點或只有一個子節點
             if (node->left == nullptr || node->right == nullptr) {
                 TreeNode<T>* temp = node->left ? node->left : node->right;
-                delete node;
-                return temp;
+                if (temp == nullptr) { // 沒有子節點，也就是葉節點
+                    temp = node;
+                    node = nullptr;
+                } else { // 一個子節點
+                    *node = *temp; // 複製非空子節點的內容到當前節點
+                }
+                delete temp;
+            } else {
+                // 有兩個子節點
+                TreeNode<T>* temp = minValueNode(node->right);
+                node->data = temp->data;
+                node->schooldata = temp->schooldata;
+                node->right = remove(node->right, temp->data);
             }
-
-            TreeNode<T>* temp = minValueNode(node->right);
-
-            node->data = temp->data;
-            node->schooldata = temp->schooldata;
-
-            // Delete the inorder successor
-            node->right = remove(node->right, temp->data);
         }
 
         return node;
@@ -614,8 +618,8 @@ int main()
                         cout << "There is no match!\n";
                     }
                     else{
-                        cout << "Deleted records:" << "\n"; 
-                        savelist.printlist(); 
+                        cout << "Deleted records:" << "\n";
+                        savelist.printlist();
                     }
                     nametree.clear();
                     gradtree.clear();  
