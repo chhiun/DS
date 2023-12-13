@@ -277,7 +277,7 @@ private:
         delete node;
     }
 
-    TreeNode<T>* remove(TreeNode<T>*& node, T value) 
+    TreeNode<T> *remove(TreeNode<T> *&node, T value) 
     {
         if (node == nullptr) {
             return nullptr;
@@ -288,22 +288,16 @@ private:
         } else if (value > node->data) {
             node->right = remove(node->right, value);
         } else {
-            if (node->left == nullptr) {
-                TreeNode<T>* temp = node->right;
-                delete node;
-                return temp;
-            } else if (node->right == nullptr) {
-                TreeNode<T>* temp = node->left;
+            if (node->left == nullptr || node->right == nullptr) {
+                TreeNode<T>* temp = node->left ? node->left : node->right;
                 delete node;
                 return temp;
             }
 
-            // Node with two children: Get the inorder successor (smallest
-            // in the right subtree)
             TreeNode<T>* temp = minValueNode(node->right);
 
-            // Copy the inorder successor's data to this node
             node->data = temp->data;
+            node->schooldata = temp->schooldata;
 
             // Delete the inorder successor
             node->right = remove(node->right, temp->data);
