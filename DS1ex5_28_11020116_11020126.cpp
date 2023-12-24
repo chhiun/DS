@@ -1,12 +1,13 @@
-// ¹q¸ê¤T 11020116 ¼ïµq¸s  ¹q¸ê¤T 11020126 ¾G¯§©û
-// ¦³¨Ï¥ÎC++11
+// ?é¤‰?éŠ?11020116 çî¦¸?è¢? ?é¤‰?éŠ?11020126 ?å‰”??Â€
+// é›¿è¼»îœ…C++11
 
 #include <iostream>
-#include <cstring>
-#include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include <string>
+#include <cstring>
+#include <algorithm>
 
 using namespace std;
 
@@ -37,342 +38,258 @@ void GetCommand(int &command)
     }
 }
 
-void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // Åª¤Jinputªºtxt
+void Inputtxt(ifstream &inputFile, string &filenum, bool &check)
 {
     string filename;
-    while(filename != "0"){
-    	cout << "\nInput a file number [0: quit]: ";
-    	cin >> filename;
-    	if(filename == "0"){
-    		break;
-		}
-    	filenum = filename;
-    	filename = "input" + filename + ".txt";
-    	inputFile.open(filename);
-    	if (!inputFile) {
-    	    cout << "\n###" << filename << " does not exist! ###" << endl;
-    	    cin.clear();
-    	    check = false;
-    	} else {
-    	    check = true;
-    	    break;
-    	}
-	} 
-
+    cout << "\nInput a file number: ";
+    cin >> filename;
+    filenum = filename;
+    filename = "input" + filename + ".txt";
+    inputFile.open(filename);
+    if (!inputFile) {
+        cout << "\n###" << filename << " does not exist! ###" << endl;
+        cin.clear();
+        check = false;
+    } else {
+        check = true;
+    }
 }
 
-struct Pokemondata
-{ // ¥Î¨Ó¦U¦Û¦sÅª¶iªº©Ò¦³¸ê®Æ
-	int number = -1;
-    string name ;
-    string type1;
-    string type2 = "-1";
+class Pokemon {
+public:
+    int number;
+    std::string name;
+    std::string type1;
+    std::string type2;
     int total;
     int hp;
-    int atk;
-    int def;
-    int spatk;
-    int spdef;
+    int attack;
+    int defense;
+    int spAtk;
+    int spDef;
     int speed;
     int generation;
-    string legendary;
-};
+    bool legendary;
 
+    Pokemon() : number(0), total(0), hp(0), attack(0), defense(0), 
+                spAtk(0), spDef(0), speed(0), generation(0), legendary(false) {}
 
-class List { //¥Hvector«Ø¥ßSchooldataªºList 
-private: 
-	vector<Pokemondata> alldata;
+    static Pokemon Parse(const std::string &line) {
+        std::istringstream iss(line);
+        Pokemon p;
+        std::string token;
+        std::getline(iss, token, '\t'); p.number = std::stoi(token);
+        std::getline(iss, p.name, '\t');
+        std::getline(iss, p.type1, '\t');
+        std::getline(iss, p.type2, '\t');
+        std::getline(iss, token, '\t'); p.total = std::stoi(token);
+        std::getline(iss, token, '\t'); p.hp = std::stoi(token);
+        std::getline(iss, token, '\t'); p.attack = std::stoi(token);
+        std::getline(iss, token, '\t'); p.defense = std::stoi(token);
+        std::getline(iss, token, '\t'); p.spAtk = std::stoi(token);
+        std::getline(iss, token, '\t'); p.spDef = std::stoi(token);
+        std::getline(iss, token, '\t'); p.speed = std::stoi(token);
+        std::getline(iss, token, '\t'); p.generation = std::stoi(token);
+        std::getline(iss, token, '\t'); p.legendary = (token == "TRUE");
 
-public:
-    void clearlist() { // ²MªÅ°O¾ĞÅé 
-		alldata.clear();
+        return p;
     }
-    void add(Pokemondata data){ // ¥[¤Jlist 
-    	alldata.push_back(data);
-	}
-    int getsize(){ // ¦^¶Ç¸ê®Æ¼Æ¶q 
-    	return alldata.size();
-	}	
-    Pokemondata getdata(int i) { // ¥H¤U³£¬OÀò¨ú²Äi­Ó¸ê®Æªº¬Y¶µ¸ê°T 
-		return alldata[i];
-    }
-	int gethp(int i){
-		Pokemondata temp = alldata[i];
-		return temp.hp; 
-	}
-
-	void printlist(){
-		Pokemondata data;
-		for(int i = 0; i < alldata.size(); i ++){
-			data = alldata[i];
-			if(i<9){
-				cout << "[ " << i+1 << "]\t";
-			}
-			else{
-				cout << "[" << i+1 << "]\t";
-			}
-			cout << data.number << "\t";
-			cout << data.name << "\t\t\t";
-			if(data.name.length() < 8){
-				cout << "\t";
-			}
-
-			cout << data.type1 << "\t";
-			if(data.type1.length() < 8){
-				cout << "\t";
-			}
-			cout << data.hp << "\t";
-			cout << data.atk << "\t";	
-			cout << data.def << "\n";			
-		}
-	}
-
 };
 
-// for«Ø¥ßBSTªº¸`ÂI¡A¨C­Ó¸`ÂI¦s¤@­Óschooldata
-template <typename T> class TreeNode
-{
+class BSTNode {
 public:
-    T data;
-    Pokemondata pokemondata;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(T val, Pokemondata target) : data(val), pokemondata(target), left(nullptr), right(nullptr) {}
+    Pokemon data;
+    size_t index;
+    BSTNode *left;
+    BSTNode *right;
+
+    BSTNode(Pokemon p, size_t idx) : data(p), index(idx), left(nullptr), right(nullptr) {}
 };
 
-template <typename T> class BinarySearchTree
-{
+class BSTree {
 private:
-    TreeNode<T> *root;
+    BSTNode *root;
 
-    TreeNode<T> *insert(TreeNode<T> *node, T value, Pokemondata data)
-    {
-        if (node == nullptr) {
-            return new TreeNode<T>(value, data);
+    void InsertNode(BSTNode *&node, Pokemon p, size_t idx) {
+        if (!node) {
+            node = new BSTNode(p, idx);
+        } else if (p.hp >= node->data.hp) {
+            InsertNode(node->right, p, idx);
+        } else {
+            InsertNode(node->left, p, idx);
         }
-
-        if (value < node->data) {
-            node->left = insert(node->left, value, data);
-        } else if (value >= node->data) {
-            node->right = insert(node->right, value, data);
-        }
-
-        return node;
     }
-    TreeNode<T>* findMin(TreeNode<T>* node) {
-        while (node->left != nullptr) {
+
+    int Height(BSTNode *node) {
+        if (!node) return 0;
+
+        return 1 + std::max(Height(node->left), Height(node->right));
+    }
+
+    BSTNode *FindMin(BSTNode *node) {
+        while (node && node->left) {
             node = node->left;
         }
+
         return node;
     }
 
-    TreeNode<T>* findMax(TreeNode<T>* node) {
-        while (node->right != nullptr) {
+    BSTNode *FindMax(BSTNode *node) {
+        while (node && node->right) {
             node = node->right;
         }
+
         return node;
     }
 
-    // ¬d¸ß¾ğ°ª
-    int height(TreeNode<T> *node)
-    {
-        if (node == nullptr) {
-            return 0;
-        }
-
-        int leftHeight = height(node->left);
-        int rightHeight = height(node->right);
-
-        return 1 + std::max(leftHeight, rightHeight);
-    }
-
-    // ÄÀ©ñªÅ¶¡
-    void clear(TreeNode<T> *node)
-    {
-        if (node == nullptr) {
-            return;
-        }
-
-        clear(node->left);
-        clear(node->right);
-
-        delete node;
-    }
-
-
-
-
 public:
-    // for¥~³¡©I¥s
-    BinarySearchTree() : root(nullptr) {}
+    BSTree() : root(nullptr) {}
 
-    void insert(T value, Pokemondata data)
-    {
-        root = insert(root, value, data);
-    }
-    Pokemondata findMin() {
-		return findMin(root)->pokemondata;
+    void Insert(Pokemon p, size_t idx) {
+        InsertNode(root, p, idx);
     }
 
-    Pokemondata findMax() {
-		
-        return findMax(root)->pokemondata;
+    int TreeHeight() {
+        return Height(root);
     }
 
-    int getHeight()
-    {
-        return height(root);
+    Pokemon LeftmostNode() {
+        BSTNode *node = FindMin(root);
+        if (node) return node->data;
+        return Pokemon();  // return empty Pokemon if not found
     }
 
-    bool search(int value)
-    {
-        return search(root, value) != nullptr;
+    size_t LeftmostNodeIndex() {
+        BSTNode *node = FindMin(root);
+        if (node) return node->index;
+        return static_cast<size_t>(-1);  // return maximal size_t value as not found
     }
 
-    void clear()
-    {
-        clear(root);
-        root = nullptr;
+    Pokemon RightmostNode() {
+        BSTNode *node = FindMax(root);
+        if (node) return node->data;
+
+        return Pokemon();  // return empty Pokemon if not found
     }
 
+    size_t RightmostNodeIndex() {
+        BSTNode *node = FindMax(root);
+        if (node) return node->index;
+        return static_cast<size_t>(-1);  // return maximal size_t value as not found
+    }
 };
 
-string removeCommas(string str) {
-    str.erase(remove(str.begin(), str.end(), ','), str.end());
-    str.erase(remove(str.begin(), str.end(), '\"'), str.end());
-
-    return str;
-}
-
-
-
-int main()
-{
-    int command = 0;
-    GetCommand(command);
+int main() {
+    BSTree tree;
     ifstream inputFile;
-    ofstream outputFile;
-    List datalist;
-    BinarySearchTree<int> hptree;
     string filenum;
-    bool check = false;
 
-    // ·í«ü¥O¤£¬°0¡A´NÄ~ÄòÅª¨ú«ü¥O
-    while (command != 0) {
-        if (command == 1) {
-        	Inputtxt(inputFile, filenum, check);
-            string s;   
-			getline(inputFile, s);
-			s.clear();       
-            if(inputFile.eof() || check == false){ // ¦pªGtxt¤º¨SªF¦è ´Nµ²§ô 
-            	if(inputFile.eof()){
-            		cout << "\n### Get nothing from the file input" << filenum << ".txt ! ###\n" ;	
-				}
-			}
-			else{
-				datalist.clearlist();
-				hptree.clear();
-				cout << "        #       Name                            Type 1          HP      Attack  Defense" << "\n";
-				while(!inputFile.eof()){ //¥Îstringstream¤À³Î¨Ã§â¸ê®Æ¦s¶ilist 
-					Pokemondata data;
-					string temp;
-					stringstream ss;
-					getline(inputFile, s);
-					ss << s;
-					
-					ss >> data.number;
-					ss >> data.name;
-					ss >> data.type1;
-					ss >> data.type2;
-					
-					
-					ss >> data.total;
-					ss >> data.hp;
-					ss >> data.atk;
-					ss >> data.def;
-					ss >> data.spatk;
-					ss >> data.spdef;
-					ss >> data.speed;
-					ss >> data.generation;
-					ss >> data.legendary;
+    int command;
+    do {
+    	GetCommand(command);
 
-					if(data.number!=-1){ //Á×§K©ñ¿ùªF¦è 
-						datalist.add(data);
-					}
-					
-					ss.clear();
-					ss.str("");
+    	switch (command) {
+        	case 0: // Quit
+        	    cout << "Program terminates." << endl;
+        	    break;
+        	case 1: { // Read a file to build BST
+            	bool check;
+            	Inputtxt(inputFile, filenum, check);
+            	if (check) {
+                	vector<Pokemon> pokemons;
+                	string line;
 
-				}
+                	// Skip the header line
+                	getline(inputFile, line);
+	
+                	while (getline(inputFile, line)) {
+                	    pokemons.push_back(Pokemon::Parse(line));
+                	}
 
-				datalist.printlist();
-				for(int i = 0; i < datalist.getsize(); i ++){
-					hptree.insert(datalist.gethp(i), datalist.getdata(i)); //¥H²¦·~¤H¼Æ¬°key«Ø¥ß¤@­ÓTree 
-				}
+                	// Displaying header
+                	cout << "        #       Name                            Type 1          HP      Attack  Defense" << endl;
 
-				cout << "HP tree height = " << hptree.getHeight() << "\n";
-				Pokemondata temp = hptree.findMin();
-				cout << "Leftmost node:\n";
-				cout << "        #       Name                            Type 1          HP      Attack  Defense" << "\n";
-				for(int i = 0; i < datalist.getsize(); i ++){
-					if(datalist.getdata(i).number == temp.number){
+                	// Displaying pokemons
+                	for (size_t i = 0; i < pokemons.size(); ++i) {
 						if(i<9){
 							cout << "[ " << i+1 << "]\t";
 						}
 						else{
 							cout << "[" << i+1 << "]\t";
 						}
-						cout << temp.number << "\t";
-						cout << temp.name << "\t\t\t";
-						if(temp.name.length() < 8){
+						cout << pokemons[i].number << "\t";
+    	                cout << pokemons[i].name << "\t\t\t";
+						if(pokemons[i].name.length() < 8){
+							cout << "\t";
+						}    	                
+    	                cout << pokemons[i].type1 << "\t";
+						if(pokemons[i].type1.length() < 8){
 							cout << "\t";
 						}
+    	                cout << pokemons[i].hp << "\t";
+    	                cout << pokemons[i].attack << "\t";
+    	                cout << pokemons[i].defense << endl;
 
-						cout << temp.type1 << "\t";
-						if(temp.type1.length() < 8){
-							cout << "\t";
-						}
-						cout << temp.hp << "\t";
-						cout << temp.atk << "\t";	
-						cout << temp.def << "\n";	
+    	                // Inserting into BST with index
+    	                tree.Insert(pokemons[i], i);
+    	            }
+
+    	            // Display the result
+    	            cout << "HP tree height = " << tree.TreeHeight() << endl;
+    	            Pokemon leftmost = tree.LeftmostNode();
+    	            size_t leftIndex = tree.LeftmostNodeIndex();
+    	            cout << "Leftmost node:\n";
+    	            cout << "        #       Name                            Type 1          HP      Attack  Defense" << "\n";
+
+					if(leftIndex<9){
+						cout << "[ " << leftIndex+1 << "]\t";
 					}
-				}
-				temp = hptree.findMax();
-				cout << "Rightmost node:\n";
-				cout << "        #       Name                            Type 1          HP      Attack  Defense" << "\n";
-				for(int i = 0; i < datalist.getsize(); i ++){
-					if(datalist.getdata(i).number == temp.number){
-						if(i<9){
-							cout << "[ " << i+1 << "]\t";
-						}
-						else{
-							cout << "[" << i+1 << "]\t";
-						}
-						cout << temp.number << "\t";
-						cout << temp.name << "\t\t\t";
-						if(temp.name.length() < 8){
-							cout << "\t";
-						}
-
-						cout << temp.type1 << "\t";
-						if(temp.type1.length() < 8){
-							cout << "\t";
-						}
-						cout << temp.hp << "\t";
-						cout << temp.atk << "\t";	
-						cout << temp.def << "\n";	
+					else{
+						cout << "[" << leftIndex+1 << "]\t";
 					}
-				}				
+					cout << leftmost.number << "\t";
+    	            cout << leftmost.name << "\t\t\t";
+					if(leftmost.name.length() < 8){
+						cout << "\t";
+					}    	                
+    	            cout << leftmost.type1 << "\t";
+					if(leftmost.type1.length() < 8){
+						cout << "\t";
+					}
+    	            cout << leftmost.hp << "\t";
+    	            cout << leftmost.attack << "\t";
+    	            cout << leftmost.defense << endl;
+    	                
 
-			}
 
-			inputFile.close();
-        }
-		else {
-            printf("Command does not exist!\n"); // ¿ù»~«ü¥O
-        }
-        GetCommand(command);
-    }
+    	            Pokemon rightmost = tree.RightmostNode();
+    	            size_t rightIndex = tree.RightmostNodeIndex();
+    	            cout << "Rightmost node:\n";
+    	            cout << "        #       Name                            Type 1          HP      Attack  Defense" << "\n";
+					if(rightIndex<9){
+						cout << "[ " << rightIndex+1 << "]\t";
+					}
+					else{
+						cout << "[" << rightIndex+1 << "]\t";
+					}
+					cout << rightmost.number << "\t";
+    	            cout << rightmost.name << "\t\t\t";
+					if(rightmost.name.length() < 8){
+						cout << "\t";
+					}    	                
+    	            cout << rightmost.type1 << "\t";
+					if(rightmost.type1.length() < 8){
+						cout << "\t";
+					}
+    	            cout << rightmost.hp << "\t";
+    	            cout << rightmost.attack << "\t";
+    	            cout << rightmost.defense << endl;
 
+    	        }
+    	        break;
+    	    }
+    	}
+
+	} while(command != 0) ;
     return 0;
 }
