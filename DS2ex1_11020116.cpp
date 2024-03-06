@@ -1,4 +1,4 @@
-// 電資三 11020116 潘皓群  電資三 11020126 鄭祐昀
+// 電資三 11020116 潘皓群
 // 有使用C++11
 
 #include <iostream>
@@ -233,9 +233,9 @@ int main()
 				Txtprintvector(Maxheap, filenum);	
 				int height = HeapHeight(Maxheap.size());
 				cout <<	Maxheap.size();
-        		int leftmostIndex = (1 << (height - 1)) -1;
-    			if (leftmostIndex >= alldata.size()) {
-        			leftmostIndex = (1 << (height - 2)) -1;
+        		int leftmostIndex = (1 << (height - 1)) ;
+    			if (leftmostIndex >= alldata.size())-1 {
+        			leftmostIndex = (1 << (height - 2))-1 ;
     			}
 
     			cout << "root: ["<< Maxheap.front().serialnum <<"] " << Maxheap.front().studentnum<< endl;
