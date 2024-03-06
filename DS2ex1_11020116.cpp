@@ -1,5 +1,5 @@
-// ¹q¸ê¤T 11020116 ¼ïµq¸s  ¹q¸ê¤T 11020126 ¾G¯§©û
-// ¦³¨Ï¥ÎC++11
+// é›»è³‡ä¸‰ 11020116 æ½˜çš“ç¾¤  é›»è³‡ä¸‰ 11020126 é„­ç¥æ˜€
+// æœ‰ä½¿ç”¨C++11
 
 #include <iostream>
 #include <cstring>
@@ -37,7 +37,7 @@ void GetCommand(int &command)
     }
 }
 
-void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // Åª¤Jinputªºtxt
+void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // è®€å…¥inputçš„txt
 {
     string filename;
     cout << "\nInput a file number: ";
@@ -55,7 +55,7 @@ void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // Åª¤Jinputªºt
 }
 
 struct Schooldata
-{ // ¥Î¨Ó¦U¦Û¦sÅª¶iªº©Ò¦³¸ê®Æ
+{ // ç”¨ä¾†å„è‡ªå­˜è®€é€²çš„æ‰€æœ‰è³‡æ–™
     string schoolcode = "-1";
     string schoolname;
     string departcode;
@@ -88,9 +88,10 @@ void printvector(vector<Schooldata> alldata){
         cout << "\n";
     }	
 }
-void Txtprintvector(vector<Schooldata> alldata){
+void Txtprintvector(vector<Schooldata> alldata, string filenum){
 	ofstream outputFile;
-	outputFile.open("output.txt");
+	string filename = "output" + filenum + ".txt";
+	outputFile.open(filename);
 	if (!outputFile.is_open()) {
         cout << "Failed to open file.\n";
     }
@@ -127,31 +128,31 @@ void StoreData(const string &line, Schooldata &data, const string &separator)
     stringstream ss(line);
     string token;
     
-    // ¨Ï¥Î getline °t¦X separator ¤¤ªº¤À¹j²Å§â¨C¤@¶µ¸ê®Æ¤À³Î¶}¨Ó
+    // ä½¿ç”¨ getline é…åˆ separator ä¸­çš„åˆ†éš”ç¬¦æŠŠæ¯ä¸€é …è³‡æ–™åˆ†å‰²é–‹ä¾†
     while (getline(ss, token, separator[0])) {
         tokens.push_back(token);
     }
 
-    // ¦pªG tokens ªº¼Æ¥Ø¤£°÷¡A«h±N³Ñ¾lªºÄæ¦ì¶ñ¥R¬°ªÅ¥Õ
+    // å¦‚æœ tokens çš„æ•¸ç›®ä¸å¤ ï¼Œå‰‡å°‡å‰©é¤˜çš„æ¬„ä½å¡«å……ç‚ºç©ºç™½
     while (tokens.size() < 11) {
         tokens.push_back("");
     }
 
-    // ¬° Schooldata ¤¤ªº¨C­Ó¦¨­û½á­È¡A«İ·|¶ñ¥RªÅ­È
+    // ç‚º Schooldata ä¸­çš„æ¯å€‹æˆå“¡è³¦å€¼ï¼Œå¾…æœƒå¡«å……ç©ºå€¼
     data.schoolcode = tokens[0];
     data.schoolname = tokens[1];
     data.departcode = tokens[2];
     data.departname = tokens[3];
-    data.type = tokens[4]; // ¤é¶¡ / ¶i­×§O
-    data.level = tokens[5]; // µ¥¯Å§O
+    data.type = tokens[4]; // æ—¥é–“ / é€²ä¿®åˆ¥
+    data.level = tokens[5]; // ç­‰ç´šåˆ¥
     string studentStr = removeCommas(tokens[6]);
-    data.studentnum = studentStr.empty() ? 0 : stoi(studentStr); // ¾Ç¥Í¼Æ
+    data.studentnum = studentStr.empty() ? 0 : stoi(studentStr); // å­¸ç”Ÿæ•¸
     string professorStr = removeCommas(tokens[7]);
-    data.professornum = professorStr.empty() ? 0 : stoi(professorStr); // ±Ğ®v¼Æ
+    data.professornum = professorStr.empty() ? 0 : stoi(professorStr); // æ•™å¸«æ•¸
     string graduateStr = removeCommas(tokens[8]);
-    data.graduatenum = graduateStr.empty() ? 0 : stoi(graduateStr); // ²¦·~¥Í¼Æ
-    data.city = tokens[9]; // «°¥«
-    data.system = tokens[10]; // ¨t²Î§O
+    data.graduatenum = graduateStr.empty() ? 0 : stoi(graduateStr); // ç•¢æ¥­ç”Ÿæ•¸
+    data.city = tokens[9]; // åŸå¸‚
+    data.system = tokens[10]; // ç³»çµ±åˆ¥
 }
 
 void Heapify(vector<Schooldata> &data, int n, int i) {
@@ -175,7 +176,7 @@ void Heapify(vector<Schooldata> &data, int n, int i) {
         Heapify(data, n, largest);
     }
 }
-//«Ø¥ß³Ì¤jheap 
+//å»ºç«‹æœ€å¤§heap 
 void BuildMaxHeap(vector<Schooldata> &data) {
     int n = data.size();
     for (int i = n / 2 - 1; i >= 0; i--) {
@@ -195,7 +196,7 @@ int main()
     string filenum;
     bool check = false;
 
-    // ·í«ü¥O¤£¬°0¡A´NÄ~ÄòÅª¨ú«ü¥O
+    // ç•¶æŒ‡ä»¤ä¸ç‚º0ï¼Œå°±ç¹¼çºŒè®€å–æŒ‡ä»¤
     while (command != 0) {
         if (command == 1) {
             Inputtxt(inputFile, filenum, check);
@@ -205,7 +206,7 @@ int main()
             getline(inputFile, s2);
             getline(inputFile, s);
             s.clear();
-            // ¦pªGtxt¤º¨SªF¦è ´Nµ²§ô
+            // å¦‚æœtxtå…§æ²’æ±è¥¿ å°±çµæŸ
             if (inputFile.eof() || check == false) {
                 if (inputFile.eof()) {
                     cout << "\n### Get nothing from the file input" << filenum << ".txt ! ###\n";
@@ -217,11 +218,11 @@ int main()
                 while (!inputFile.eof()) {
                     Schooldata data;
                     getline(inputFile, s);
-                    // ©I¥s·sªº¤èªk¡A¨Ã¶Ç¤J¤À¹j²Å¸¹¡A³o¸Ì¨Ï¥Î '\t' ¥Nªí Tab ¤À¹j²Å¸¹
+                    // å‘¼å«æ–°çš„æ–¹æ³•ï¼Œä¸¦å‚³å…¥åˆ†éš”ç¬¦è™Ÿï¼Œé€™è£¡ä½¿ç”¨ '\t' ä»£è¡¨ Tab åˆ†éš”ç¬¦è™Ÿ
                     StoreData(s, data, "\t");
                     data.serialnum = count;
                     count++;
-                    // Á×§K©ñ¿ùªF¦è
+                    // é¿å…æ”¾éŒ¯æ±è¥¿
                     if (data.schoolcode != "-1" && !data.schoolcode.empty()) {
                     	alldata.push_back(data);
                     }
@@ -229,7 +230,7 @@ int main()
                 //Txtprintvector(alldata);
                 vector<Schooldata> Maxheap = alldata;
                 BuildMaxHeap(Maxheap);
-				Txtprintvector(Maxheap);	
+				Txtprintvector(Maxheap, filenum);	
 				int height = HeapHeight(Maxheap.size());
 				cout <<	Maxheap.size();
         		int leftmostIndex = (1 << (height - 1)) -1;
@@ -245,7 +246,7 @@ int main()
             }
             inputFile.close();
         }else {
-            printf("Command does not exist!\n"); // ¿ù»~«ü¥O
+            printf("Command does not exist!\n"); // éŒ¯èª¤æŒ‡ä»¤
         }
         GetCommand(command);
     }
