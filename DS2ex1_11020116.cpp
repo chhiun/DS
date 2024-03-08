@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -62,13 +63,15 @@ struct Schooldata
     string departname;
     string type;
     string level;
-    int studentnum;
+    int studentnum = 0;
     int professornum;
     int graduatenum;
     string city;
     string system;
     int serialnum;
 };
+
+
 
 
 void printvector(vector<Schooldata> alldata){
@@ -155,7 +158,7 @@ void StoreData(const string &line, Schooldata &data, const string &separator)
     data.system = tokens[10]; // 系統別
 }
 
-void Heapify(vector<Schooldata> &data, int n, int i) {
+void Heapify(vector<Schooldata> &data, int n, int i, Schooldata &bottom, Schooldata &leftmost) {
     int largest = i;
     int l = 2 * i + 1; // left = 2*i + 1
     int r = 2 * i + 2; // right = 2*i + 2
@@ -173,14 +176,14 @@ void Heapify(vector<Schooldata> &data, int n, int i) {
     
     if (largest != i) {
         swap(data[i], data[largest]);
-        Heapify(data, n, largest);
+        Heapify(data, n, largest, bottom, leftmost);
     }
+    
 }
-//建立最大heap 
-void BuildMaxHeap(vector<Schooldata> &data) {
+void BuildMaxHeap(vector<Schooldata> &data, Schooldata &bottom, Schooldata &leftmost) {
     int n = data.size();
     for (int i = n / 2 - 1; i >= 0; i--) {
-        Heapify(data, n, i);
+        Heapify(data, n, i, bottom, leftmost);
     }
 }
 int HeapHeight(int n) {
@@ -214,6 +217,8 @@ int main()
                 cout << "\nThere is no data!\n";
             } else {
             	vector<Schooldata> alldata;
+            	Schooldata bottom;
+            	Schooldata leftmost;
             	int count = 1;
                 while (!inputFile.eof()) {
                     Schooldata data;
@@ -229,12 +234,11 @@ int main()
                 }
                 //Txtprintvector(alldata);
                 vector<Schooldata> Maxheap = alldata;
-                BuildMaxHeap(Maxheap);
+                BuildMaxHeap(Maxheap, bottom, leftmost);
 				Txtprintvector(Maxheap, filenum);	
 				int height = HeapHeight(Maxheap.size());
-				cout <<	Maxheap.size();
-        		int leftmostIndex = (1 << (height - 1)) ;
-    			if (leftmostIndex >= alldata.size())-1 {
+        		int leftmostIndex = (1 << (height - 1))-1 ;
+    			if (leftmostIndex >= alldata.size()) {
         			leftmostIndex = (1 << (height - 2))-1 ;
     			}
 
