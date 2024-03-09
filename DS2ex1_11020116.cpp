@@ -100,7 +100,7 @@ void Txtprintvector(vector<Schooldata> alldata, string filenum){
     else{
 	
     	for (int i = 0; i < alldata.size(); i++) {
-        	outputFile << "[" << alldata[i].serialnum << "]\t";
+        	//outputFile << "[" << alldata[i].serialnum << "]\t";
         	//outputFile << alldata[i].schoolcode << "\t";
         	//outputFile << alldata[i].schoolname << "\t";
         	//outputFile << alldata[i].departcode << "\t";
@@ -157,37 +157,109 @@ void StoreData(const string &line, Schooldata &data, const string &separator)
     data.system = tokens[10]; // 系統別
 }
 
-void Heapify(vector<Schooldata> &data, int n, int i) {
-    int largest = i;
-    int l = 2 * i + 1; // left = 2*i + 1
-    int r = 2 * i + 2; // right = 2*i + 2
 
-    if (l < n && data[l].studentnum > data[largest].studentnum)
-        largest = l;
-    
-    if (r < n && data[r].studentnum > data[largest].studentnum)
-        largest = r;
-    
-    if ((l < n && data[l].studentnum == data[largest].studentnum && l < largest) ||
-        (r < n && data[r].studentnum == data[largest].studentnum && r < largest)) {
-        largest = (l < r) ? l : r;
+
+class MaxHeap {
+private:
+    std::vector<Schooldata> heap;
+
+    // ?取父??索引
+    int parent(int i) { return (i - 1) / 2; }
+
+    // ?取左子??索引
+    int leftChild(int i) { return 2 * i + 1; }
+
+    // ?取右子??索引
+    int rightChild(int i) { return 2 * i + 2; }
+
+    // 交???元素
+    void swap(Schooldata &a, Schooldata &b) {
+        Schooldata temp;
+		temp.studentnum = a.studentnum;
+		temp.serialnum = a.serialnum;
+		
+        a.studentnum = b.studentnum;
+        a.serialnum = b.serialnum;
+        b.studentnum = temp.studentnum;
+        b.serialnum = temp.serialnum;
     }
-    
-    if (largest != i) {
-        swap(data[i], data[largest]);
-        Heapify(data, n, largest);
+
+    // 向上?整堆
+    void heapifyUp(int index) {
+        while (index > 0 && heap[parent(index)].studentnum < heap[index].studentnum) {
+            swap(heap[index], heap[parent(index)]);
+            index = parent(index);
+        }
     }
-    
-}
-void BuildMaxHeap(vector<Schooldata> &data) {
-    int n = data.size();
-    for (int i = n / 2 - 1; i >= 0; i--) {
-        Heapify(data, n, i);
+
+    // 向下?整堆
+    void heapifyDown(int index) {
+        int maxIndex = index;
+        int left = leftChild(index);
+        int right = rightChild(index);
+
+        if (left < heap.size() && heap[left].studentnum > heap[maxIndex].studentnum)
+            maxIndex = left;
+
+        if (right < heap.size() && heap[right].studentnum > heap[maxIndex].studentnum)
+            maxIndex = right;
+
+        if (index != maxIndex) {
+            swap(heap[index], heap[maxIndex]);
+            heapifyDown(maxIndex);
+        }
     }
-}
-int HeapHeight(int n) {
-    return static_cast<int>(ceil(log2(n+1))); // n is the number of elements in the heap
-}
+
+public:
+    // 插入元素
+    void insert(Schooldata data) {
+        heap.push_back(data);
+        heapifyUp(heap.size() - 1);
+    }
+
+    // ?取根??值
+    int getRoot() {
+        if (heap.empty())
+            cout << "Heap is empty\n";
+        return heap[0].studentnum;
+    }
+    int getRootserial() {
+        if (heap.empty())
+            cout << "Heap is empty\n";
+        return heap[0].serialnum;
+    }
+
+    // ?取底部值
+    int getBottom() {
+        if (heap.empty())
+            cout << "Heap is empty\n";
+        return heap.back().studentnum;
+    }
+    int getBottomserial() {
+        if (heap.empty())
+            cout << "Heap is empty\n";
+        return heap.back().serialnum;
+    }
+    // ?取最左下角??值
+    int getLeftmostBottom() {
+        if (heap.empty())
+            cout << "Heap is empty\n";
+        int index = 0;
+        while (leftChild(index) < heap.size()) {
+            index = leftChild(index);
+        }
+        return heap[index].studentnum;
+    }
+    int getLeftmostBottomserial() {
+        if (heap.empty())
+            cout << "Heap is empty\n";
+        int index = 0;
+        while (leftChild(index) < heap.size()) {
+            index = leftChild(index);
+        }
+        return heap[index].serialnum;
+    }
+};
 
 int main()
 {
@@ -210,10 +282,8 @@ int main()
             s.clear();
             // 如果txt內沒東西 就結束
             if (inputFile.eof() || check == false) {
-                if (inputFile.eof()) {
-                    cout << "\n### Get nothing from the file input" << filenum << ".txt ! ###\n";
-                }
-                cout << "\nThere is no data!\n";
+                //cout << "\n### Get nothing from the file input" << filenum << ".txt ! ###\n";
+                //cout << "\nThere is no data!\n";
             } else {
             	vector<Schooldata> alldata;
             	Schooldata bottom;
@@ -231,19 +301,16 @@ int main()
                     	alldata.push_back(data);
                     }
                 }
-                //Txtprintvector(alldata);
-                vector<Schooldata> Maxheap = alldata;
-                BuildMaxHeap(Maxheap);
-				Txtprintvector(Maxheap, filenum);	
-				int height = HeapHeight(Maxheap.size());
-        		int leftmostIndex = (1 << (height - 1))-1 ;
-    			if (leftmostIndex >= alldata.size()) {
-        			leftmostIndex = (1 << (height - 2))-1 ;
-    			}
+                //Txtprintvector(alldata, filenum);
+                MaxHeap maxheap;
+                for(int i = 0; i < alldata.size(); i ++){
+                	maxheap.insert(alldata[i]);
 
-    			cout << "root: ["<< Maxheap.front().serialnum <<"] " << Maxheap.front().studentnum<< endl;
-    			cout << "bottom: ["<< Maxheap.back().serialnum <<"] " << Maxheap.back().studentnum<< endl;
-    			cout << "leftmost bottom: ["<< Maxheap[leftmostIndex].serialnum <<"] " << Maxheap[leftmostIndex].studentnum<< endl;
+				}
+				cout << "<max heap>\n";
+    			cout << "root: ["<< maxheap.getRootserial() <<"] " << maxheap.getRoot()<< endl;
+    			cout << "bottom: ["<< maxheap.getBottomserial() <<"] " << maxheap.getBottom()<< endl;
+    			cout << "leftmost bottom: ["<< maxheap.getLeftmostBottomserial() <<"] " << maxheap.getLeftmostBottom()<< endl;
 
 
             }
