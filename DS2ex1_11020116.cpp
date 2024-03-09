@@ -73,7 +73,6 @@ struct Schooldata
 
 
 
-
 void printvector(vector<Schooldata> alldata){
     for (int i = 0; i < alldata.size(); i++) {
         cout << "[" << alldata[i].serialnum << "]\t";
@@ -158,7 +157,7 @@ void StoreData(const string &line, Schooldata &data, const string &separator)
     data.system = tokens[10]; // 系統別
 }
 
-void Heapify(vector<Schooldata> &data, int n, int i, Schooldata &bottom, Schooldata &leftmost) {
+void Heapify(vector<Schooldata> &data, int n, int i) {
     int largest = i;
     int l = 2 * i + 1; // left = 2*i + 1
     int r = 2 * i + 2; // right = 2*i + 2
@@ -176,14 +175,14 @@ void Heapify(vector<Schooldata> &data, int n, int i, Schooldata &bottom, Schoold
     
     if (largest != i) {
         swap(data[i], data[largest]);
-        Heapify(data, n, largest, bottom, leftmost);
+        Heapify(data, n, largest);
     }
     
 }
-void BuildMaxHeap(vector<Schooldata> &data, Schooldata &bottom, Schooldata &leftmost) {
+void BuildMaxHeap(vector<Schooldata> &data) {
     int n = data.size();
     for (int i = n / 2 - 1; i >= 0; i--) {
-        Heapify(data, n, i, bottom, leftmost);
+        Heapify(data, n, i);
     }
 }
 int HeapHeight(int n) {
@@ -234,7 +233,7 @@ int main()
                 }
                 //Txtprintvector(alldata);
                 vector<Schooldata> Maxheap = alldata;
-                BuildMaxHeap(Maxheap, bottom, leftmost);
+                BuildMaxHeap(Maxheap);
 				Txtprintvector(Maxheap, filenum);	
 				int height = HeapHeight(Maxheap.size());
         		int leftmostIndex = (1 << (height - 1))-1 ;
