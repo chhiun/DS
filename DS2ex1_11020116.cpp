@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <queue> 
 using namespace std;
 
 void GetCommand(int &command)
@@ -46,7 +46,10 @@ void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // 讀入input�
     filenum = filename;
     filename = "input" + filename + ".txt";
     inputFile.open(filename);
-    if (!inputFile) {
+    if (filenum == "0"){
+    	check = false;
+	}
+    else if (!inputFile) {
         cout << "\n###" << filename << " does not exist! ###" << endl;
         cin.clear();
         check = false;
@@ -63,7 +66,7 @@ struct Schooldata
     string departname;
     string type;
     string level;
-    int studentnum = 0;
+    int studentnum = -1;
     int professornum;
     int graduatenum;
     string city;
@@ -157,12 +160,10 @@ void StoreData(const string &line, Schooldata &data, const string &separator)
     data.system = tokens[10]; // 系統別
 }
 
-
-
 class MaxHeap {
 private:
-    std::vector<Schooldata> heap;
 
+	int count = 0;
     // ?取父??索引
     int parent(int i) { return (i - 1) / 2; }
 
@@ -192,32 +193,18 @@ private:
         }
     }
 
-    // 向下?整堆
-    void heapifyDown(int index) {
-        int maxIndex = index;
-        int left = leftChild(index);
-        int right = rightChild(index);
 
-        if (left < heap.size() && heap[left].studentnum > heap[maxIndex].studentnum)
-            maxIndex = left;
-
-        if (right < heap.size() && heap[right].studentnum > heap[maxIndex].studentnum)
-            maxIndex = right;
-
-        if (index != maxIndex) {
-            swap(heap[index], heap[maxIndex]);
-            heapifyDown(maxIndex);
-        }
-    }
 
 public:
+    std::vector<Schooldata> heap;
     // 插入元素
     void insert(Schooldata data) {
         heap.push_back(data);
         heapifyUp(heap.size() - 1);
     }
-
-    // ?取根??值
+    std::vector<Schooldata> getheap(){
+    	return heap;
+	}
     int getRoot() {
         if (heap.empty())
             cout << "Heap is empty\n";
@@ -240,6 +227,11 @@ public:
             cout << "Heap is empty\n";
         return heap.back().serialnum;
     }
+    Schooldata getBottomdata() {
+        if (heap.empty())
+            cout << "Heap is empty\n";
+        return heap.back();
+    }
     // ?取最左下角??值
     int getLeftmostBottom() {
         if (heap.empty())
@@ -259,177 +251,78 @@ public:
         }
         return heap[index].serialnum;
     }
+
+	void clear(){
+		heap.clear();
+	}
+
 };
-class MinHeap {
+class Heap {
 private:
-    std::vector<Schooldata> heap;
 
-    // ?取父??索引
+	int count = 0;
     int parent(int i) { return (i - 1) / 2; }
-
-    // ?取左子??索引
     int leftChild(int i) { return 2 * i + 1; }
-
-    // ?取右子??索引
     int rightChild(int i) { return 2 * i + 2; }
 
-    // 交???元素
     void swap(Schooldata &a, Schooldata &b) {
         Schooldata temp;
 		temp.studentnum = a.studentnum;
-		temp.serialnum = a.serialnum;
-		
+		temp.serialnum = a.serialnum;		
         a.studentnum = b.studentnum;
         a.serialnum = b.serialnum;
         b.studentnum = temp.studentnum;
         b.serialnum = temp.serialnum;
     }
 
-    // 向上?整堆
-    void heapifyUp(int index) {
+    void MaxheapifyUp(int index) {
+        while (index > 0 && heap[parent(index)].studentnum < heap[index].studentnum) {
+            swap(heap[index], heap[parent(index)]);
+            index = parent(index);
+        }
+    }
+    void MinheapifyUp(int index) {
         while (index > 0 && heap[parent(index)].studentnum > heap[index].studentnum) {
             swap(heap[index], heap[parent(index)]);
             index = parent(index);
         }
     }
 
-    // 向下?整堆
-    void heapifyDown(int index) {
-        int maxIndex = index;
-        int left = leftChild(index);
-        int right = rightChild(index);
-
-        if (left < heap.size() && heap[left].studentnum > heap[maxIndex].studentnum)
-            maxIndex = left;
-
-        if (right < heap.size() && heap[right].studentnum > heap[maxIndex].studentnum)
-            maxIndex = right;
-
-        if (index != maxIndex) {
-            swap(heap[index], heap[maxIndex]);
-            heapifyDown(maxIndex);
-        }
-    }
 
 public:
-    // 插入元素
-    void insert(Schooldata data) {
-        heap.push_back(data);
-        heapifyUp(heap.size() - 1);
-    }
-
-    // ?取根??值
-    int getRoot() {
-        if (heap.empty())
-            cout << "Heap is empty\n";
-        return heap[0].studentnum;
-    }
-    int getRootserial() {
-        if (heap.empty())
-            cout << "Heap is empty\n";
-        return heap[0].serialnum;
-    }
-
-    // ?取底部值
-    int getBottom() {
-        if (heap.empty())
-            cout << "Heap is empty\n";
-        return heap.back().studentnum;
-    }
-    int getBottomserial() {
-        if (heap.empty())
-            cout << "Heap is empty\n";
-        return heap.back().serialnum;
-    }
-    // ?取最左下角??值
-    int getLeftmostBottom() {
-        if (heap.empty())
-            cout << "Heap is empty\n";
-        int index = 0;
-        while (leftChild(index) < heap.size()) {
-            index = leftChild(index);
-        }
-        return heap[index].studentnum;
-    }
-    int getLeftmostBottomserial() {
-        if (heap.empty())
-            cout << "Heap is empty\n";
-        int index = 0;
-        while (leftChild(index) < heap.size()) {
-            index = leftChild(index);
-        }
-        return heap[index].serialnum;
-    }
-};
-class DEAP {
-private:
     std::vector<Schooldata> heap;
-
-    // ?取父??索引
-    int parent(int i) { return (i - 1) / 2; }
-
-    // ?取左子??索引
-    int leftChild(int i) { return 2 * i + 1; }
-
-    // ?取右子??索引
-    int rightChild(int i) { return 2 * i + 2; }
-
-    // 交???元素
-    void swap(Schooldata &a, Schooldata &b) {
-        Schooldata temp;
-		temp.studentnum = a.studentnum;
-		temp.serialnum = a.serialnum;
-		
-        a.studentnum = b.studentnum;
-        a.serialnum = b.serialnum;
-        b.studentnum = temp.studentnum;
-        b.serialnum = temp.serialnum;
-    }
-
-    // 向上?整堆
-    void heapifyUp(int index) {
-        while (index > 0 && heap[parent(index)].studentnum < heap[index].studentnum) {
-            swap(heap[index], heap[parent(index)]);
-            index = parent(index);
-        }
-    }
-
-    // 向下?整堆
-    void heapifyDown(int index) {
-        int maxIndex = index;
-        int left = leftChild(index);
-        int right = rightChild(index);
-
-        if (left < heap.size() && heap[left].studentnum > heap[maxIndex].studentnum)
-            maxIndex = left;
-
-        if (right < heap.size() && heap[right].studentnum > heap[maxIndex].studentnum)
-            maxIndex = right;
-
-        if (index != maxIndex) {
-            swap(heap[index], heap[maxIndex]);
-            heapifyDown(maxIndex);
-        }
-    }
-
-public:
     // 插入元素
-    void insert(Schooldata data) {
-        heap.push_back(data);
-        heapifyUp(heap.size() - 1);
-    }
 
-    // ?取根??值
-    int getRoot() {
-        if (heap.empty())
-            cout << "Heap is empty\n";
-        return heap[0].studentnum;
+    void rightinsert(Schooldata data) {
+        heap.push_back(data);
+        MaxheapifyUp(heap.size() - 1);
     }
-    int getRootserial() {
-        if (heap.empty())
-            cout << "Heap is empty\n";
-        return heap[0].serialnum;
+    void leftinsert(Schooldata data) {
+        heap.push_back(data);
+        MinheapifyUp(heap.size() - 1);
     }
+    
+	void changetarget(int target, Schooldata data){
+		
+		heap[target] = data;
+		MinheapifyUp(heap.size() - 1);
+
+	}
+	void exchangetarget(int target, Schooldata data){
+		vector<Schooldata> save;
+		for(int i = heap.size()-1; i > target; i--){
+			save.push_back(heap[i]);
+			heap.pop_back();
+		}
+		heap[target] = data;
+		MinheapifyUp(heap.size() - 1);
+		while(!save.empty()){
+        	heap.push_back(save.back());
+        	MinheapifyUp(heap.size() - 1);
+        	save.pop_back();
+		}
+
+	}
 
     // ?取底部值
     int getBottom() {
@@ -441,6 +334,11 @@ public:
         if (heap.empty())
             cout << "Heap is empty\n";
         return heap.back().serialnum;
+    }
+    Schooldata getBottomdata() {
+        if (heap.empty())
+            cout << "Heap is empty\n";
+        return heap.back();
     }
     // ?取最左下角??值
     int getLeftmostBottom() {
@@ -461,6 +359,94 @@ public:
         }
         return heap[index].serialnum;
     }
+
+	void clear(){
+		heap.clear();
+	}
+
+};
+class Deap { //for 任務二   
+private:
+    Heap leftheap;
+    Heap rightheap;
+    int stage = 1;
+    int countL = 0;
+    int countR = 0;
+    int position = 1;
+    Schooldata bottom;
+    Schooldata leftmost;
+    bool check = false;
+
+public:
+    void insert(Schooldata data) {
+
+    	int scale = pow(2, stage);
+
+    	if(countL == 0){
+    		leftheap.leftinsert(data);
+    		bottom = leftheap.getBottomdata();
+    		countL ++;
+		}
+    	else if(position <= (scale/2)){
+    		if((data.studentnum > rightheap.getBottom()) && !rightheap.heap.empty()&&countL!=0){   			
+    			Schooldata temp = rightheap.getBottomdata();
+    			rightheap.heap.pop_back();
+    			rightheap.rightinsert(data);
+    			leftheap.leftinsert(temp);
+			}
+			else{
+				leftheap.leftinsert(data);
+			}
+			countL++;
+			bottom = leftheap.getBottomdata();
+			if(position == 1){
+				leftmost = leftheap.getBottomdata();
+			}
+
+		}
+		else if(position > (scale/2)){
+			if(data.studentnum < leftheap.heap[countR].studentnum){ // problem
+				rightheap.rightinsert(leftheap.heap[countR]);
+				leftheap.changetarget(countR, data);			
+			}
+			else{
+				rightheap.rightinsert(data);
+				
+			}
+			bottom = rightheap.getBottomdata();		
+		}
+
+
+		if(position == scale){
+			stage++;
+			position = 1;
+		}
+		else{
+			position++;
+		}
+
+				 
+    }
+    
+    int getBottom() {
+        return bottom.studentnum;
+    }
+    int getBottomserial() {
+        return bottom.serialnum;
+    }
+
+    int getLeftmostBottom() {
+
+        return leftmost.studentnum;
+    }
+    int getLeftmostBottomserial() {
+
+        return leftmost.serialnum;
+    }
+	void clear(){
+		rightheap.clear();
+		leftheap.clear();
+	}
 };
 int main()
 {
@@ -512,13 +498,14 @@ int main()
     			cout << "root: ["<< maxheap.getRootserial() <<"] " << maxheap.getRoot()<< endl;
     			cout << "bottom: ["<< maxheap.getBottomserial() <<"] " << maxheap.getBottom()<< endl;
     			cout << "leftmost bottom: ["<< maxheap.getLeftmostBottomserial() <<"] " << maxheap.getLeftmostBottom()<< endl;
+    			maxheap.clear();
 
 
             }
             inputFile.close();
         }
         
-		if (command == 2) {
+		else if (command == 2) {
             Inputtxt(inputFile, filenum, check);
             string s;
             string s1, s2;
@@ -548,15 +535,15 @@ int main()
                     }
                 }
 
-                MinHeap maxheap;
+                Deap deap;
                 for(int i = 0; i < alldata.size(); i ++){
-                	maxheap.insert(alldata[i]);
+                	deap.insert(alldata[i]);
 
 				}
-				cout << "<max heap>\n";
-    			cout << "root: ["<< maxheap.getRootserial() <<"] " << maxheap.getRoot()<< endl;
-    			cout << "bottom: ["<< maxheap.getBottomserial() <<"] " << maxheap.getBottom()<< endl;
-    			cout << "leftmost bottom: ["<< maxheap.getLeftmostBottomserial() <<"] " << maxheap.getLeftmostBottom()<< endl;
+				cout << "<DEAP>\n";
+    			cout << "bottom: ["<< deap.getBottomserial() <<"] " << deap.getBottom()<< endl;
+    			cout << "leftmost bottom: ["<< deap.getLeftmostBottomserial() <<"] " << deap.getLeftmostBottom()<< endl;
+    			deap.clear();
 
 
             }
