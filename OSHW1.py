@@ -5,7 +5,7 @@ import queue
 import multiprocessing
 import threading
 from datetime import datetime
-"""method3 -> pool, method4-> threads"""
+
 def Inputtxt(arr, filename):
     while(True):
         try:
@@ -143,14 +143,47 @@ def Method3(arr,filename):
     outfile.write("Sort : \n")
     for i in range ( len(sorted_chunks) ):
         outfile.write(str(sorted_chunks[i]) + "\n")
-    for num in sorted_chunks:
-        print(num)
+    outfile.writelines(f"{number}\n" for number in sorted_chunks)
     total_time = ( endTime - starttime )
     current_time = datetime.now()
     outfile.write( "CPU Time : " + str(total_time)  + " seconds \n" )
     outfile.write( "Output Time : " + str(current_time)  + "+08:00\n" ) 
     outfile.close() 
 
+def merge(arr, l, mid, r):
+    n1 = mid - l + 1
+    n2 = r - mid
+
+    L = arr[l:l+n1]
+    R = arr[mid+1:mid+1+n2]
+
+    i = j = 0
+    k = l
+
+    while i < n1 and j < n2:
+        if L[i] <= R[j]:
+            arr[k] = L[i]
+            i += 1
+        else:
+            arr[k] = R[j]
+            j += 1
+        k += 1
+
+    while i < n1:
+        arr[k] = L[i]
+        i += 1
+        k += 1
+
+    while j < n2:
+        arr[k] = R[j]
+        j += 1
+        k += 1
+def M4merge_sort(arr, l, r):
+    if l < r:
+        mid = (l + r) // 2
+        M4merge_sort(arr, l, mid)
+        M4merge_sort(arr, mid+1, r)
+        merge(arr, l, mid, r)
 def Method4(arr,filename):
     output = ""
     output = filename
@@ -159,38 +192,48 @@ def Method4(arr,filename):
     chunk_size = len(arr) // k
     starttime = time.time()
 
+    n = len(arr)
+    chunk_size = n // k
+
     # Split array into chunks
     chunks = [arr[i:i+chunk_size] for i in range(0, n, chunk_size)]
 
-    # Bubble sort each chunk using multiprocessing
-    with multiprocessing.Pool(processes=k) as pool:
-        sorted_chunks = pool.map(bubblesort, chunks)
+    # Bubble sort each chunk using threading
+    bubble_threads = []
+    for chunk in chunks:
+        thread = threading.Thread(target=bubblesort, args=(chunk,))
+        bubble_threads.append(thread)
+        thread.start()
 
-    # Merge all sorted chunks using multiprocessing
-    while len(sorted_chunks) > 1:
-        next_chunks = []
-        for i in range(0, len(sorted_chunks), 2):
-            if i+1 < len(sorted_chunks):
-                merged = sorted_chunks[i] + sorted_chunks[i+1]
-                merged.sort()
-                next_chunks.append(merged)
+    for thread in bubble_threads:
+        thread.join()
+
+    # Merge all sorted chunks using threading
+    while len(chunks) > 1:
+        merged_chunks = []
+        for i in range(0, len(chunks), 2):
+            if i+1 < len(chunks):
+                merged = chunks[i] + chunks[i+1]
+                M4merge_sort(merged, 0, len(merged)-1)
+                merged_chunks.append(merged)
             else:
-                next_chunks.append(sorted_chunks[i])
-        sorted_chunks = next_chunks
+                merged_chunks.append(chunks[i])
+        chunks = merged_chunks
+
 
     endTime = time.time()
-    outfile = open(output + "_output3.txt", "w")
+    outfile = open(output + "_output4.txt", "w")
     outfile.write("Sort : \n")
-    for i in range ( len(sorted_chunks) ):
-        outfile.write(str(sorted_chunks[i]) + "\n")
+    for i in range ( len(chunks) ):
+        outfile.write(str(chunks[i]) + "\n")
     total_time = ( endTime - starttime )
     current_time = datetime.now()
     outfile.write( "CPU Time : " + str(total_time)  + " seconds \n" )
     outfile.write( "Output Time : " + str(current_time)  + "+08:00\n" ) 
-    outfile.close()                      
+    outfile.close()    
+
 if __name__ == '__main__':
     command = 9
-    sys.setrecursionlimit(1000000)
     while command != 0 :
         print("*************** " )
         print("0 to quit.")
@@ -210,24 +253,28 @@ if __name__ == '__main__':
             if Inputtxt(arr, filename) == True:
                 Method1(arr,filename)
             else:
-                break
+                pass
         
         elif command == "2" :
             filename = input("Please input  file name.\n") 
             if Inputtxt(arr, filename) == True:
                 Method2(arr,filename)
             else:
-                break
+                pass
             
         elif command == "3" :
             filename = input("Please input  file name.\n") 
             if Inputtxt(arr, filename) == True:
                 Method3(arr,filename)
             else:
-                break
+                pass
             
         elif command == "4" :
-            break
+            filename = input("Please input  file name.\n") 
+            if Inputtxt(arr, filename) == True:
+                Method4(arr,filename)
+            else:
+                pass
         
         else :
             print("No such command. Please try again.")
