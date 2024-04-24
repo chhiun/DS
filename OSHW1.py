@@ -5,7 +5,7 @@ import queue
 import multiprocessing
 import threading
 from datetime import datetime
-from sort_utils import bubblesort
+from concurrent.futures import ThreadPoolExecutor
 
 def Inputtxt(arr, filename):
     while(True):
@@ -27,7 +27,13 @@ def Inputtxt(arr, filename):
         
     inputfile.close() 
     return True
-
+def bubblesort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n-i-1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]   
+    return arr
 def Method1(arr,filename):
     output = ""
     output = filename
@@ -72,7 +78,8 @@ def Method2(arr,filename):
     outfile.write( "Output Time : " + str(current_time)  + "+08:00\n" )
     outfile.close()  
 
-def merge_sort(arr):
+def merge_sort(arr): 
+
     if len(arr) > 1:
         mid = len(arr) // 2
         L = arr[:mid]
@@ -110,7 +117,6 @@ def Method3(arr,filename):
     chunk_size = len(arr) // k
     starttime = time.time()
 
-    # Split array into chunks
     chunks = [arr[i:i+chunk_size] for i in range(0, n, chunk_size)]
 
     # Bubble sort each chunk using multiprocessing
@@ -129,6 +135,7 @@ def Method3(arr,filename):
                 next_chunks.append(sorted_chunks[i])
         sorted_chunks = next_chunks
 
+
     endTime = time.time()
     outfile = open(output + "_output3.txt", "w")
     outfile.write("Sort : \n")
@@ -140,7 +147,12 @@ def Method3(arr,filename):
     outfile.write( "Output Time : " + str(current_time)  + "+08:00\n" ) 
     outfile.close() 
 
-def merge(arr, l, mid, r):
+
+
+
+
+"""for method4"""
+def merge4(arr, l, mid, r):
     n1 = mid - l + 1
     n2 = r - mid
 
@@ -174,8 +186,8 @@ def M4merge_sort(arr, l, r):
         mid = (l + r) // 2
         M4merge_sort(arr, l, mid)
         M4merge_sort(arr, mid+1, r)
-        merge(arr, l, mid, r)
-
+        merge4(arr, l, mid, r)
+"""for method4"""
 def Method4(arr,filename):
     output = ""
     output = filename
