@@ -5,6 +5,7 @@ import queue
 import multiprocessing
 import threading
 from datetime import datetime
+from sort_utils import bubblesort
 
 def Inputtxt(arr, filename):
     while(True):
@@ -26,15 +27,6 @@ def Inputtxt(arr, filename):
         
     inputfile.close() 
     return True
-    
-
-def bubblesort(arr):
-    n = len(arr)
-    for i in range(n):
-        for j in range(0, n-i-1):
-            if arr[j] > arr[j+1]:
-                arr[j], arr[j+1] = arr[j+1], arr[j]   
-    return arr
 
 def Method1(arr,filename):
     output = ""
@@ -51,7 +43,6 @@ def Method1(arr,filename):
     outfile.write( "CPU Time : " + str(total_time)  + " seconds \n" )
     outfile.write( "Output Time : " + str(current_time)  + "+08:00\n" )
     outfile.close()    
-
 
 def Method2(arr,filename):
     output = ""
@@ -141,9 +132,8 @@ def Method3(arr,filename):
     endTime = time.time()
     outfile = open(output + "_output3.txt", "w")
     outfile.write("Sort : \n")
-    for i in range ( len(sorted_chunks) ):
-        outfile.write(str(sorted_chunks[i]) + "\n")
-    outfile.writelines(f"{number}\n" for number in sorted_chunks)
+    for number in sorted_chunks[0]:
+        outfile.write(str(number) + "\n")
     total_time = ( endTime - starttime )
     current_time = datetime.now()
     outfile.write( "CPU Time : " + str(total_time)  + " seconds \n" )
@@ -178,12 +168,14 @@ def merge(arr, l, mid, r):
         arr[k] = R[j]
         j += 1
         k += 1
+
 def M4merge_sort(arr, l, r):
     if l < r:
         mid = (l + r) // 2
         M4merge_sort(arr, l, mid)
         M4merge_sort(arr, mid+1, r)
         merge(arr, l, mid, r)
+
 def Method4(arr,filename):
     output = ""
     output = filename
@@ -229,7 +221,7 @@ def Method4(arr,filename):
     total_time = ( endTime - starttime )
     current_time = datetime.now()
     outfile.write( "CPU Time : " + str(total_time)  + " seconds \n" )
-    outfile.write( "Output Time : " + str(current_time)  + "+08:00\n" ) 
+    outfile.write( "Output Time : " + str(current_time.isoformat()) + "+08:00\n" )
     outfile.close()    
 
 if __name__ == '__main__':
@@ -278,8 +270,3 @@ if __name__ == '__main__':
         
         else :
             print("No such command. Please try again.")
-
-
-
-
-
