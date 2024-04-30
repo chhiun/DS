@@ -1,5 +1,5 @@
-// ¹q¸ê¤T 11020116 ¼ïµq¸s  10927227 «¸´¼²Ô 
-// ¦³¨Ï¥ÎC++11
+// é›»è³‡ä¸‰ 11020116 æ½˜çš“ç¾¤  10927227 å§œæ™ºç´³ 
+// æœ‰ä½¿ç”¨C++11
 
 #include <iostream>
 #include <cmath>
@@ -40,7 +40,7 @@ void GetCommand(int &command)
         }
     }
 }
-void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // Åª¤Jinputªºtxt
+void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // è®€å…¥inputçš„txt
 {
     string filename;
     //cout << "\nInput a file number ([0] Quit): ";
@@ -58,7 +58,7 @@ void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // Åª¤Jinputªºt
         check = true;
     }
 }
-void Inputbin(ifstream &inputFile, string &filenum, bool &check) // Åª¤Jinputªºtxt
+void Inputbin(ifstream &inputFile, string &filenum, bool &check) // è®€å…¥inputçš„txt
 {
     string filename;
     //cout << "\nInput a file number ([0] Quit): ";
@@ -77,7 +77,7 @@ void Inputbin(ifstream &inputFile, string &filenum, bool &check) // Åª¤Jinputªºt
     }
 }
 struct Studentdata
-{ // ¥Î¨Ó¦U¦Û¦sÅª¶iªº©Ò¦³¸ê®Æ
+{ // ç”¨ä¾†å„è‡ªå­˜è®€é€²çš„æ‰€æœ‰è³‡æ–™
 	string sid = "-1";
 	string name;
 	vector<int> grades;
@@ -85,14 +85,14 @@ struct Studentdata
 	
 };
 struct BinStudentdata
-{ // ¥Î¨Ó¦U¦Û¦sÅª¶iªº©Ò¦³¸ê®Æ
+{ // ç”¨ä¾†å„è‡ªå­˜è®€é€²çš„æ‰€æœ‰è³‡æ–™
     char sid[10];
     char sname[10];
     unsigned char scores[6];
     float mean;
 };
 void printvector(vector<BinStudentdata> alldata)
-{ //forÀË¬d¨Ï¥Î 
+{ //foræª¢æŸ¥ä½¿ç”¨ 
     for (int i = 0; i < alldata.size(); i++) {
         cout << alldata[i].sid << "\t";
         cout << alldata[i].sname << "\t";
@@ -118,7 +118,7 @@ void BinStoreData(vector<BinStudentdata> &alldata, string filenum)
     	vector<string> tokens;
     	stringstream ss(line);
     	string token;
-    	cout << ss;
+
 
         while (getline(ss, token, '\t')) {
             tokens.push_back(token);
@@ -147,7 +147,7 @@ void mission0(string &filenum, vector<BinStudentdata> &alldata, bool check){
         Inputtxt(inputFile, filenum, check);
         bin = false;
 	}
-    // ¦pªGtxt¤º¨SªF¦è ´Nµ²§ô 
+    // å¦‚æœtxtå…§æ²’æ±è¥¿ å°±çµæŸ 
     if (inputFile.eof() || check == false ) {
     	//cout << "\n### Get nothing from the file input" << filenum << ".txt ! ###\n";
         //cout << "\nThere is no data!\n";
@@ -191,14 +191,14 @@ int main()
     vector<BinStudentdata> alldata;
 
 
-    // ·í«ü¥O¤£¬°0¡A´NÄ~ÄòÅª¨ú«ü¥O
+    // ç•¶æŒ‡ä»¤ä¸ç‚º0ï¼Œå°±ç¹¼çºŒè®€å–æŒ‡ä»¤
     while (command != 0) {
         if (command == 1) {    	
 			mission0(filenum, alldata, check);
 			printvector(alldata);
         }
 		else {
-            printf("Command does not exist!\n"); // ¿ù»~«ü¥O
+            printf("Command does not exist!\n"); // éŒ¯èª¤æŒ‡ä»¤
         }
         GetCommand(command);
     }
