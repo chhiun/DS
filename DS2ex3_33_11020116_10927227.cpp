@@ -241,8 +241,7 @@ class quadratic_Hash{
 	void createTable(){
 		size = find_prime();
 		M1 hashTable[size];
-		int success = 0;
-		int unsuccess = 0;
+		int count = 0;
 		for (int i = 0; i < size ; i++ ) {
 			//初始化hashTable 
 			hashTable[i].is_empty = true;	
@@ -255,18 +254,21 @@ class quadratic_Hash{
 			while (hashTable[tempHash].is_empty == false ) {
 				tempHash = hash;
 				tempHash = quadraticProbe(tempHash, step);		
-				step++;				
+				step++;
+				count++;				
 			}
+			count++;
 			hashTable[tempHash].data = alldata[i];
 			hashTable[tempHash].is_empty = false;
-			hashTable[tempHash].hashValue = hash;
-			cout << tempHash << "\t" << hash << "\t" << alldata[i].sid << "\t" << alldata[i].sname << endl	;		
+			hashTable[tempHash].hashValue = hash;		
 		}
-		float averageComparisons = success / (float)alldata.size();
+		//cout << count << "\t" << alldata.size() << "\t" << size << endl;
+		float unaverageComparisons = count / (float)size;
+		float averageComparisons = count / (float)alldata.size();
 		outputTable( size, hashTable );
 		cout << "Hash table has been successfully created by Quadratic probing\n";
-		//cout << "successful search: " <<  fixed  <<  setprecision(4) << averageComparisons << "comparisons on average\n";
-	
+		cout << "unsuccessful search: " <<  fixed  <<  setprecision(4) << unaverageComparisons << " comparisons on average\n";
+		cout << "successful search: " <<  fixed  <<  setprecision(4) << averageComparisons << " comparisons on average\n";
 }
 	void outputTable(int size,  M1 *m1  ){
 		string final_file_num;
@@ -282,7 +284,7 @@ class quadratic_Hash{
 			else 
 				file  << m1[i].hashValue <<','<< '\t'  << m1[i].data.sid <<',' << '\t' << m1[i].data.sname << ',' << '\t'<< m1[i].data.mean<< '\n' ;
 		}
-		
+		file << "----------------------------------------------" << '\n' ;
 		file.close();
 	}//writeM1			
 };
@@ -373,7 +375,7 @@ class double_Hash{
 			else 
 				file  << m1[i].hashValue <<','<< '\t'  << m1[i].data.sid <<',' << '\t' << m1[i].data.sname << ',' << '\t'<< m1[i].data.mean<< '\n' ;
 		}
-		
+		file << "----------------------------------------------" << '\n' ;
 		file.close();
 	}//writeM1	
 	
