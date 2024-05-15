@@ -57,6 +57,171 @@ struct Answer {
 	vector<int> turnaround;
 };
 Answer result[6];
+
+void Writefile(ofstream & ofs, int order){
+	if(order == 1){
+      ofs << "FCFS" << endl;
+      ofs << "==        FCFS==" << endl;
+      ofs << result[order-1].graph <<endl;
+	}
+	else if(order==2){
+      ofs << "RR" << endl;
+      ofs << "==          RR==" << endl;
+	  ofs << result[order-1].graph <<endl;		
+	}
+	else if(order==3){
+      ofs << "SJF" << endl;
+      ofs << "==         SJF==" << endl;
+	  ofs << result[order-1].graph <<endl;		
+	}
+	else if(order==4){
+      ofs << "SRTF" << endl;
+      ofs << "==        SRTF==" << endl;
+	  ofs << result[order-1].graph <<endl;		
+	}
+	else if(order==5){
+      ofs << "HRRN" << endl;
+      ofs << "==        HRRN==" << endl;
+	  ofs << result[order-1].graph <<endl;		
+	}
+	else if(order==6){
+      ofs << "PPRR" << endl;
+      ofs << "==        PPRR==" << endl;
+	  ofs << result[order-1].graph <<endl;		
+	}
+	else if(order==7){
+      ofs << "All" << endl;
+      ofs << "==        FCFS==" << endl;
+      ofs << result[0].graph << endl;
+      ofs << "==          RR==" << endl;
+      ofs << result[1].graph << endl;
+      ofs << "==         SJF==" << endl;
+      ofs << result[2].graph << endl;
+      ofs << "==        SRTF==" << endl;
+      ofs << result[3].graph << endl;
+      ofs << "==        HRRN==" << endl;
+      ofs << result[4].graph << endl;
+      ofs << "==        PPRR==" << endl;
+      ofs << result[5].graph << endl;		
+	}
+  	ofs << "===========================================================" << endl << endl;
+  	ofs << "Waiting Time" << endl;	
+  	
+	if(order == 1){
+      ofs << "ID\tFCFS" << endl;
+      ofs << "===========================================================" << endl;
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].waiting [ i ] << endl;
+      }
+	}
+	else if(order==2){
+      ofs << "ID\tRR" << endl;
+      ofs << "===========================================================" << endl;
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].waiting [ i ] << endl;
+      }
+    }
+	else if(order==3){
+      ofs << "ID\tSJF" << endl;
+      ofs << "===========================================================" << endl;
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].waiting [ i ] << endl;
+      }	
+	}
+	else if(order==4){
+      ofs << "ID\tSRTF" << endl;
+      ofs << "===========================================================" << endl;
+
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].waiting [ i ] << endl;
+      }		
+	}
+	else if(order==5){
+      ofs << "ID\tHRRN" << endl;
+      ofs << "===========================================================" << endl;
+
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].waiting [ i ] << endl;
+      }	
+	}
+	else if(order==6){
+      ofs << "ID\tPPRR" << endl;
+      ofs << "===========================================================" << endl;
+
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].waiting [ i ] << endl;
+      }		
+	}
+	else if(order==7){
+      ofs << "ID\tFCFS\tRR\tSJF\tSRTF\tHRRN\tPPRR" << endl;
+      ofs << "===========================================================" << endl;
+      for ( int i = 0; i < result [ 0 ].pid.size(); i++ ) {
+        ofs << result [ 0 ].pid [ i ] << "\t" << result [ 0 ].waiting [ i ] << "\t"
+            << result [ 1 ].waiting [ i ] << "\t" << result [ 2 ].waiting [ i ] << "\t"
+            << result [ 3 ].waiting[ i ] << "\t" << result [ 4 ].waiting [ i ] << "\t"
+            << result [ 5 ].waiting [ i ] << endl;
+      }	
+	}
+  	ofs << "===========================================================" << endl << endl;
+  	ofs << "Turnaround Time" << endl; 
+  	
+	if(order == 1){
+      ofs << "ID\tFCFS" << endl;
+      ofs << "===========================================================" << endl;
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].turnaround [ i ] << endl;
+      }
+	}
+	else if(order==2){
+      ofs << "ID\tRR" << endl;
+      ofs << "===========================================================" << endl;
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].turnaround [ i ] << endl;
+      }
+    }
+	else if(order==3){
+      ofs << "ID\tSJF" << endl;
+      ofs << "===========================================================" << endl;
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].turnaround [ i ] << endl;
+      }	
+	}
+	else if(order==4){
+      ofs << "ID\tSRTF" << endl;
+      ofs << "===========================================================" << endl;
+
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].turnaround [ i ] << endl;
+      }		
+	}
+	else if(order==5){
+      ofs << "ID\tHRRN" << endl;
+      ofs << "===========================================================" << endl;
+
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].turnaround [ i ] << endl;
+      }	
+	}
+	else if(order==6){
+      ofs << "ID\tPPRR" << endl;
+      ofs << "===========================================================" << endl;
+
+      for ( int i = 0; i < result [ order-1 ].pid.size(); i++ ) {
+        ofs << result [ order-1 ].pid [ i ] << "\t" << result [ order-1 ].turnaround [ i ] << endl;
+      }		
+	}
+	else if(order==7){
+      ofs << "ID\tFCFS\tRR\tSJF\tSRTF\tHRRN\tPPRR" << endl;
+      ofs << "===========================================================" << endl;
+      for ( int i = 0; i < result [ 0 ].pid.size(); i++ ) {
+        ofs << result [ 0 ].pid [ i ] << "\t" << result [ 0 ].turnaround [ i ] << "\t"
+            << result [ 1 ].turnaround [ i ] << "\t" << result [ 2 ].turnaround [ i ] << "\t"
+            << result [ 3 ].turnaround[ i ] << "\t" << result [ 4 ].turnaround [ i ] << "\t"
+            << result [ 5 ].turnaround [ i ] << endl;
+      }	
+	}
+  	ofs << "===========================================================" << endl << endl;	   	
+}
 // 進程的結構體
 struct Process {
     int pid;        // 進程ID
@@ -135,13 +300,17 @@ public:
     	vector<Process> readyQueue = processes;
         int currentTime = 0;
         string graph;
-        cout << "FCFS Scheduling:\n";
+        //cout << "FCFS Scheduling:\n";
         for (int i = 0; i < readyQueue.size(); i++) {
-            if (currentTime < readyQueue[i].arrival)
-                currentTime = readyQueue[i].arrival;  // 等待到進程到達時間
+            if (currentTime < readyQueue[i].arrival){
+            	while(currentTime<readyQueue[i].arrival && i < readyQueue.size() ){
+            		currentTime++;
+            		graph = graph +"-";
+				}
+			}  // 等待到進程到達時間
             
 			string temp = Inttohex(readyQueue[i].pid);
-			for(int i = 0; i < readyQueue[i].burst; i++){
+			for(int j = 0; j < readyQueue[i].burst; j++){
 				graph = graph + temp;
 			}
 			readyQueue[i].turnaround = currentTime + readyQueue[i].burst - readyQueue[i].arrival;
@@ -160,11 +329,10 @@ public:
             //     << " and turnaround time: " << readyQueue[i].turnaround << endl;        	
 		}
 		result[0].graph = graph;
-        //cout << "Graph:" << graph << endl;
-        cout << result[0].graph << endl;
+        /*cout << result[0].graph << endl;
         for(int i = 0 ; i <result[0].pid.size() ; i++){
         	cout << result[0].pid[i] << "	" << result[0].waiting[i] << "	" << result[0].turnaround[i] << endl;
-		}
+		}*/
     }
 
     // 輪轉 (Round Robin) 調度算法
@@ -176,7 +344,7 @@ public:
         bool done = true;
         Process temp;
         string graph;
-        cout << "\nRound Robin Scheduling with Quantum " << quantum << ":\n";
+        //cout << "\nRound Robin Scheduling with Quantum " << quantum << ":\n";
 
         while (!readyQueue.empty() || idx < processes.size()) {
             // 將到達時間小於等於目前時間的進程加入就緒隊列
@@ -189,7 +357,10 @@ public:
         		done = true;
 			}
             if (readyQueue.empty()) {
-                currentTime = processes[idx].arrival;
+            	while(currentTime<processes[idx].arrival && idx < processes.size() ){
+            		currentTime++;
+            		graph = graph +"-";
+				}
                 continue;
             }
 
@@ -232,19 +403,18 @@ public:
             //     << " and turnaround time: " << readyQueue[i].turnaround << endl;        	
 		}
 		result[1].graph = graph;
-        //cout << "Graph:" << graph << endl;
-        cout << result[1].graph << endl;
+        /*cout << result[1].graph << endl;
         for(int i = 0 ; i <result[1].pid.size() ; i++){
         	cout << result[1].pid[i] << "	" << result[1].waiting[i] << "	" << result[1].turnaround[i] << endl;
-		}
-        //cout << "Graph:" << graph << endl;
+		}*/
+
     }
     void SJF() {
     	vector<Process> output;
     	vector<Process> remainingJobs = processes;
     	int currentTime = 0;
     	string graph;
-    	cout << "\nShortest Job First Schduling " <<  ":\n";
+    	//cout << "\nShortest Job First Schduling " <<  ":\n";
     	while (!remainingJobs.empty()) {
     		vector<Process> readyQueue;
     		int i;
@@ -252,7 +422,10 @@ public:
                 readyQueue.push_back(remainingJobs[i]);
             }
             if (readyQueue.empty()) {
-                currentTime = remainingJobs.front().arrival;
+            	while(currentTime<remainingJobs.front().arrival && i < remainingJobs.size()){
+            		currentTime++;
+            		graph = graph +"-";
+				}
                 continue;
             }
             int min = INT_MAX;
@@ -290,15 +463,15 @@ public:
             //     << " and turnaround time: " << readyQueue[i].turnaround << endl;        	
 		}
 		result[2].graph = graph;
-        //cout << "Graph:" << graph << endl;
-        cout << result[2].graph << endl;
+
+        /*cout << result[2].graph << endl;
         for(int i = 0 ; i <result[2].pid.size() ; i++){
         	cout << result[2].pid[i] << "	" << result[2].waiting[i] << "	" << result[2].turnaround[i] << endl;
-		}
+		}*/
 
     }
     void SRTF() {
-    	cout << "\nSRTF Schduling " <<  ":\n";
+    	//cout << "\nSRTF Schduling " <<  ":\n";
     	vector<Process> output;
     	vector<Process> remainingJobs = processes;
     	int currentTime = 0;
@@ -307,13 +480,16 @@ public:
 		for(int i = 0; i < remainingJobs.size(); i++){
 			total = total + remainingJobs[i].burst;
 		}
-    	for (int currentTime = 0; currentTime <= total ; currentTime++) {
+		bool complete = false;
+    	for (int currentTime = 0; complete == false  ; currentTime++) {
     		vector<Process> readyQueue;
             for (int i = 0; i < remainingJobs.size() && remainingJobs[i].arrival <= currentTime; i++) {
-                readyQueue.push_back(remainingJobs[i]);
+            	if(remainingJobs[i].done == false){
+            		readyQueue.push_back(remainingJobs[i]);
+				}
             }
             if(readyQueue.size() == 0){
-
+				graph = graph +"-";
             	continue;
 			}
             int min = INT_MAX;
@@ -325,19 +501,31 @@ public:
 				}
 			}
 			string temps = Inttohex(readyQueue[save].pid);
-			graph = graph + temps;			
+			if(readyQueue[save].burst >0){
+				graph = graph + temps;
+			}			
 			readyQueue[save].burst--;
 			if(readyQueue[save].burst==0){
 				Process origin = findtarget(readyQueue[save].pid);
 				readyQueue[save].turnaround = (currentTime+1)- readyQueue[save].arrival;
 				readyQueue[save].waiting = readyQueue[save].turnaround - origin.burst;
-				output.push_back(readyQueue[save]);				
+				output.push_back(readyQueue[save]);	
+				for(int a = 0; a < remainingJobs.size(); a++){
+					if(remainingJobs[a].pid == readyQueue[save].pid ){
+						remainingJobs[a].done = true;
+					}
+				}			
 			}
+			complete = true;
 			for(int i = 0; i < remainingJobs.size(); i++){
 				if(readyQueue[save].pid == remainingJobs[i].pid){
 					remainingJobs[i].burst--;
 				}
+				if(remainingJobs[i].done == false){
+					complete = false;
+				}
 			}
+			
 
 		}
     	
@@ -350,11 +538,10 @@ public:
             //     << " and turnaround time: " << readyQueue[i].turnaround << endl;        	
 		}
 		result[3].graph = graph;
-        //cout << "Graph:" << graph << endl;
-        cout << result[3].graph << endl;
+        /*cout << result[3].graph << endl;
         for(int i = 0 ; i <result[3].pid.size() ; i++){
         	cout << result[3].pid[i] << "	" << result[3].waiting[i] << "	" << result[3].turnaround[i] << endl;
-		}
+		}*/
 
     }
     void HRRN() {
@@ -362,7 +549,7 @@ public:
     	vector<Process> remainingJobs = processes;
     	int currentTime = 0;
     	string graph;
-    	cout << "\nHRRN Schduling " <<  ":\n";
+    	//cout << "\nHRRN Schduling " <<  ":\n";
     	while (!remainingJobs.empty()) {
     		vector<Process> readyQueue;
     		int i;
@@ -370,7 +557,10 @@ public:
                 readyQueue.push_back(remainingJobs[i]);
             }
             if (readyQueue.empty()) {
-                currentTime = remainingJobs.front().arrival;
+            	while(currentTime<remainingJobs.front().arrival && i < remainingJobs.size()){
+            		currentTime++;
+            		graph = graph +"-";
+				}
                 continue;
             }
             double max = -1.0;
@@ -410,37 +600,45 @@ public:
             //     << " and turnaround time: " << readyQueue[i].turnaround << endl;        	
 		}
 		result[4].graph = graph;
-        //cout << "Graph:" << graph << endl;
-        cout << result[4].graph << endl;
+        /*cout << result[4].graph << endl;
         for(int i = 0 ; i <result[4].pid.size() ; i++){
         	cout << result[4].pid[i] << "	" << result[4].waiting[i] << "	" << result[4].turnaround[i] << endl;
-		}
+		}*/
 	}
-    void PPRR(int quantum) {
+    void PPRR(int quantum1) {
     	vector<Process> readyQueue;
         vector<Process> remainingJobs = processes;
         vector<Process> output;
         int currentTime = 0;
         int idx = 0;
         bool done = true;
-        Process temp;
+        int left = 0;
+        int lastpriority;
+        Process notcomplete;
         string graph;
-        cout << "\nRound Robin Scheduling with Quantum " << quantum << ":\n";
+        //cout << "\nPPRR with Quantum " << quantum1 << ":\n";
 
         while (!readyQueue.empty() || idx < processes.size()) {
+        	int quantum = quantum1;
+        	if(left!=0){
+        		quantum = left;
+			}
+			left = 0;
             // 將到達時間小於等於目前時間的進程加入就緒隊列
             while ( idx < remainingJobs.size() && remainingJobs[idx].arrival <= currentTime) {
                 readyQueue.push_back(remainingJobs[idx]);
                 idx++;
             }
-            
+
             if (readyQueue.empty()) {
-                currentTime = processes.front().arrival;
+            	currentTime++;
+            	graph = graph +"-";
                 continue;
             }
             int min = INT_MAX;
             int save;
 			for(int a = 0; a < readyQueue.size(); a++){
+				int count = 0;
 				if(min > readyQueue[a].priority && readyQueue[a].burst>0){
 					min = readyQueue[a].priority;
 				}
@@ -452,14 +650,28 @@ public:
 					break;
 				}
 			}
+			
+			
+            int nextarrival;
+            for(int a =0; a < remainingJobs.size();a++){
+            	if(remainingJobs[a].arrival > currentTime){
+            		nextarrival = remainingJobs[a].arrival;
+            		break;
+				}
+			}
+			
             Process currentProc = readyQueue[save];
             string id = Inttohex(currentProc.pid);
-            cout << currentProc.pid << endl;
-            
-
-            //cout << "Process " << currentProc.pid << " starts at " << currentTime;
+            //cout << "Process " << currentProc.pid << " currenttime " << currentTime << " next arrive time " << nextarrival << endl;
+			int check = nextarrival - currentTime;
+			if(quantum > check && check >0){
+				left = quantum - check;
+				quantum = check;
+			}
+            //cout << "Process " << currentProc.pid << " timeslice: " << quantum << "left: " << left << endl;
 
             if (currentProc.burst <= quantum) {
+            	left = 0;
                 // 進程執行完畢
                 for(int i = 0; i < currentProc.burst; i++){
                 	graph = graph + id;
@@ -475,7 +687,8 @@ public:
                 		temp.push_back(readyQueue[i]);
 					}
 				}
-				readyQueue = temp;               
+				readyQueue = temp;      
+				done = true;         
             } 
 			else {
                 // 進程執行一個量子後放回就緒隊列
@@ -493,6 +706,8 @@ public:
 				}
 				temp.push_back(currentProc);
 				readyQueue = temp; 
+				done = false;
+				lastpriority = min;
             }
         }
         
@@ -505,12 +720,11 @@ public:
             //     << " and turnaround time: " << readyQueue[i].turnaround << endl;        	
 		}
 		result[5].graph = graph;
-        //cout << "Graph:" << graph << endl;
+        /*cout << "Graph:" << graph << endl;
         cout << result[5].graph << endl;
         for(int i = 0 ; i <result[5].pid.size() ; i++){
         	cout << result[5].pid[i] << "	" << result[5].waiting[i] << "	" << result[5].turnaround[i] << endl;
-		}
-        //cout << "Graph:" << graph << endl;
+		}*/
     }
 };
 
@@ -539,36 +753,43 @@ int main() {
 		}
 		inputFile.close();
 	}
-
-    // 添加進程 (pid, arrival time, burst time)
     
-    /*scheduler.addProcess(5,6,26,13);
-    scheduler.addProcess(13,1,7,2);
-    scheduler.addProcess(6,5,1,7);
-    scheduler.addProcess(27,6,3,7);
-    scheduler.addProcess(2,3,30,13);
-	scheduler.addProcess(1,2,13,5);
-	scheduler.addProcess(9,4,1,6);
-	scheduler.addProcess(10,8,2,13);
-	scheduler.addProcess(0,4,36,1);
-	scheduler.addProcess(8,2,23,12);
-	scheduler.addProcess(7,1,3,16);
-	scheduler.addProcess(29,6,20,8);
-	scheduler.addProcess(4,3,18,10);
-	scheduler.addProcess(20,3,15,14);
-	scheduler.addProcess(3,4,22,3);*/
-	 
-	/*scheduler.addProcess(1,8,0,2);
-	scheduler.addProcess(2,4,2,2);
-	scheduler.addProcess(3,9,5,2);
-	scheduler.addProcess(4,5,8,2);*/
 	scheduler.sort();	
-    scheduler.FCFS();
-    scheduler.RR(timeslice);
-	scheduler.SJF();
-	scheduler.SRTF();
-	scheduler.HRRN();
-	scheduler.PPRR(timeslice);
+	if(order==1){
+		scheduler.FCFS();	
+	}
+	else if(order==2){
+		scheduler.RR(timeslice);
+	}
+	else if(order==3){
+		scheduler.SJF();
+	}
+	else if(order==4){
+		scheduler.SRTF();
+	}
+	else if(order==5){
+		scheduler.HRRN();
+	}
+	else if(order==6){
+		scheduler.PPRR(timeslice);
+	}
+	else if(order==7){
+    	scheduler.FCFS();
+    	scheduler.RR(timeslice);
+		scheduler.SJF();
+		scheduler.SRTF();
+		scheduler.HRRN();
+		scheduler.PPRR(timeslice);
+		filename = "out_"+filename;		
+	}
+	filename = filename+".txt";
+	ofstream outputFile;
+	outputFile.open(filename);
+	Writefile(outputFile, order);
+	outputFile.close();
+	cout << "DONE" << endl;
+	
+	
     return 0;
 }
 
