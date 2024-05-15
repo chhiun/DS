@@ -11,9 +11,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <list>
+
 using namespace std;
 
-void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // Åª¤Jinputªºtxt
+void Inputtxt(ifstream &inputFile, string &filenum, bool &check) // è®€å…¥inputçš„txt
 {
     string filename;
     cout << "\nInput a file number ([0] Quit): ";
@@ -56,11 +57,11 @@ struct Answer {
 	vector<int> turnaround;
 };
 Answer result[6];
-// ¶iµ{ªºµ²ºcÅé
+// é€²ç¨‹çš„çµæ§‹é«”
 struct Process {
-    int pid;        // ¶iµ{ID
-    int arrival;    // ¨ì¹F®É¶¡
-    int burst;      // °õ¦æ®É¶¡
+    int pid;        // é€²ç¨‹ID
+    int arrival;    // åˆ°é”æ™‚é–“
+    int burst;      // åŸ·è¡Œæ™‚é–“
 	int priority;
 	int waiting;
 	int turnaround;
@@ -69,6 +70,9 @@ struct Process {
 		
 	}
     Process(int id, int bur, int arr, int prior) : pid(id), burst(bur),arrival(arr),priority(prior) {}
+    double responseRatio(int currentTime) const {
+        return (currentTime - arrival + burst) / static_cast<double>(burst);
+    }
 };
 vector<Process> SortWithId(vector<Process> vec ){
 	vector<Process> processes = vec;
@@ -84,13 +88,13 @@ vector<Process> SortWithId(vector<Process> vec ){
 	}
 	return processes;
 }
-// CPU ½Õ«×¾¹Ãş
+// CPU èª¿åº¦å™¨é¡
 class Scheduler {
 private:
     vector<Process> processes;
 
 public:
-    // ·s¼W¤@­Ó¶iµ{¨ì½Õ«×¾¹
+    // æ–°å¢ä¸€å€‹é€²ç¨‹åˆ°èª¿åº¦å™¨
     void addProcess(int pid, int burst, int arrival, int prior) {
         processes.emplace_back(pid, burst, arrival, prior);
     }
@@ -126,7 +130,7 @@ public:
 		}
 	}
 
-    // ¥ı¨Ó¥ıªA°È (FCFS) ½Õ«×ºâªk
+    // å…ˆä¾†å…ˆæœå‹™ (FCFS) èª¿åº¦ç®—æ³•
     void FCFS() {
     	vector<Process> readyQueue = processes;
         int currentTime = 0;
@@ -134,7 +138,7 @@ public:
         cout << "FCFS Scheduling:\n";
         for (int i = 0; i < readyQueue.size(); i++) {
             if (currentTime < readyQueue[i].arrival)
-                currentTime = readyQueue[i].arrival;  // µ¥«İ¨ì¶iµ{¨ì¹F®É¶¡
+                currentTime = readyQueue[i].arrival;  // ç­‰å¾…åˆ°é€²ç¨‹åˆ°é”æ™‚é–“
             
 			string temp = Inttohex(readyQueue[i].pid);
 			for(int i = 0; i < readyQueue[i].burst; i++){
@@ -145,7 +149,7 @@ public:
             //cout << "Process " << readyQueue[i].pid << " waiting time: " << readyQueue[i].waiting
             //     << " and turnaround time: " << readyQueue[i].turnaround << endl;
 
-            currentTime += readyQueue[i].burst;  // §ó·s·í«e®É¶¡
+            currentTime += readyQueue[i].burst;  // æ›´æ–°ç•¶å‰æ™‚é–“
         }
         readyQueue = SortWithId(readyQueue);
         for(int i = 0; i < readyQueue.size(); i++){
@@ -163,7 +167,7 @@ public:
 		}
     }
 
-    // ½üÂà (Round Robin) ½Õ«×ºâªk
+    // è¼ªè½‰ (Round Robin) èª¿åº¦ç®—æ³•
     void RR(int quantum) {
         queue<Process> readyQueue;
         vector<Process> output;
@@ -175,7 +179,7 @@ public:
         cout << "\nRound Robin Scheduling with Quantum " << quantum << ":\n";
 
         while (!readyQueue.empty() || idx < processes.size()) {
-            // ±N¨ì¹F®É¶¡¤p©óµ¥©ó¥Ø«e®É¶¡ªº¶iµ{¥[¤J´Nºü¶¤¦C
+            // å°‡åˆ°é”æ™‚é–“å°æ–¼ç­‰æ–¼ç›®å‰æ™‚é–“çš„é€²ç¨‹åŠ å…¥å°±ç·’éšŠåˆ—
             while (idx < processes.size() && processes[idx].arrival <= currentTime) {
                 readyQueue.push(processes[idx]);
                 idx++;
@@ -196,7 +200,7 @@ public:
             //cout << "Process " << currentProc.pid << " starts at " << currentTime;
 
             if (currentProc.burst <= quantum) {
-                // ¶iµ{°õ¦æ§¹²¦
+                // é€²ç¨‹åŸ·è¡Œå®Œç•¢
                 for(int i = 0; i < currentProc.burst; i++){
                 	graph = graph + id;
 				}
@@ -208,7 +212,7 @@ public:
 				output.push_back(currentProc);                
                 done = true;
             } else {
-                // ¶iµ{°õ¦æ¤@­Ó¶q¤l«á©ñ¦^´Nºü¶¤¦C
+                // é€²ç¨‹åŸ·è¡Œä¸€å€‹é‡å­å¾Œæ”¾å›å°±ç·’éšŠåˆ—
                 for(int i =0; i < quantum; i++){
                 	graph = graph + id;
 				}
@@ -353,6 +357,161 @@ public:
 		}
 
     }
+    void HRRN() {
+    	vector<Process> output;
+    	vector<Process> remainingJobs = processes;
+    	int currentTime = 0;
+    	string graph;
+    	cout << "\nHRRN Schduling " <<  ":\n";
+    	while (!remainingJobs.empty()) {
+    		vector<Process> readyQueue;
+    		int i;
+            for (i = 0; i < remainingJobs.size() && remainingJobs[i].arrival <= currentTime; i++) {
+                readyQueue.push_back(remainingJobs[i]);
+            }
+            if (readyQueue.empty()) {
+                currentTime = remainingJobs.front().arrival;
+                continue;
+            }
+            double max = -1.0;
+            int save;
+			for(int a = 0; a < readyQueue.size(); a++){
+				double ratio = readyQueue[a].responseRatio(currentTime);
+				if(max < readyQueue[a].responseRatio(currentTime)){
+					max = readyQueue[a].responseRatio(currentTime);
+					save = a;
+				}
+			}
+		
+     		Process& job = remainingJobs[save];
+			string temps = Inttohex(job.pid);
+			for(int i = 0; i < job.burst; i++){
+				graph = graph + temps;
+			}
+        	currentTime += job.burst;
+			job.turnaround = currentTime- job.arrival;
+			job.waiting = job.turnaround - job.burst;
+			output.push_back(job);
+			//cout << job.pid << " waiting: " << job.waiting << " turnaround: " << job.turnaround << endl;
+        	vector<Process> temp;
+        	for(int j = 0; j < remainingJobs.size(); j++){
+        		if(job.pid != remainingJobs[j].pid){
+        			temp.push_back(remainingJobs[j]);
+				}
+			}
+        	remainingJobs = temp;
+    	}
+        output = SortWithId(output);
+        for(int i = 0; i < output.size(); i++){
+        	result[4].pid.push_back(output[i].pid);
+        	result[4].waiting.push_back(output[i].waiting);
+        	result[4].turnaround.push_back(output[i].turnaround);
+            //cout << "Process " << readyQueue[i].pid << " waiting time: " << readyQueue[i].waiting
+            //     << " and turnaround time: " << readyQueue[i].turnaround << endl;        	
+		}
+		result[4].graph = graph;
+        //cout << "Graph:" << graph << endl;
+        cout << result[4].graph << endl;
+        for(int i = 0 ; i <result[4].pid.size() ; i++){
+        	cout << result[4].pid[i] << "	" << result[4].waiting[i] << "	" << result[4].turnaround[i] << endl;
+		}
+	}
+    void PPRR(int quantum) {
+    	vector<Process> readyQueue;
+        vector<Process> remainingJobs = processes;
+        vector<Process> output;
+        int currentTime = 0;
+        int idx = 0;
+        bool done = true;
+        Process temp;
+        string graph;
+        cout << "\nRound Robin Scheduling with Quantum " << quantum << ":\n";
+
+        while (!readyQueue.empty() || idx < processes.size()) {
+            // å°‡åˆ°é”æ™‚é–“å°æ–¼ç­‰æ–¼ç›®å‰æ™‚é–“çš„é€²ç¨‹åŠ å…¥å°±ç·’éšŠåˆ—
+            while ( idx < remainingJobs.size() && remainingJobs[idx].arrival <= currentTime) {
+                readyQueue.push_back(remainingJobs[idx]);
+                idx++;
+            }
+            
+            if (readyQueue.empty()) {
+                currentTime = processes.front().arrival;
+                continue;
+            }
+            int min = INT_MAX;
+            int save;
+			for(int a = 0; a < readyQueue.size(); a++){
+				if(min > readyQueue[a].priority && readyQueue[a].burst>0){
+					min = readyQueue[a].priority;
+				}
+			}
+			for(int a = 0; a < readyQueue.size(); a++){
+				if(min == readyQueue[a].priority && readyQueue[a].burst>0){
+					min = readyQueue[a].priority;
+					save = a;
+					break;
+				}
+			}
+            Process currentProc = readyQueue[save];
+            string id = Inttohex(currentProc.pid);
+            cout << currentProc.pid << endl;
+            
+
+            //cout << "Process " << currentProc.pid << " starts at " << currentTime;
+
+            if (currentProc.burst <= quantum) {
+                // é€²ç¨‹åŸ·è¡Œå®Œç•¢
+                for(int i = 0; i < currentProc.burst; i++){
+                	graph = graph + id;
+				}
+				Process origin = findtarget(currentProc.pid);
+                currentTime += currentProc.burst;
+				currentProc.turnaround = currentTime- currentProc.arrival;
+				currentProc.waiting = currentProc.turnaround - origin.burst;                
+				output.push_back(currentProc);        
+				vector<Process> temp;        
+                for(int i = 0; i < readyQueue.size(); i++){
+                	if(readyQueue[i].pid!= currentProc.pid){
+                		temp.push_back(readyQueue[i]);
+					}
+				}
+				readyQueue = temp;               
+            } 
+			else {
+                // é€²ç¨‹åŸ·è¡Œä¸€å€‹é‡å­å¾Œæ”¾å›å°±ç·’éšŠåˆ—
+                for(int i =0; i < quantum; i++){
+                	graph = graph + id;
+				}
+                currentTime += quantum;
+                //cout << " and is preempted at " << currentTime << endl;
+                currentProc.burst -= quantum;
+                vector<Process> temp; 
+                for(int i = 0; i < readyQueue.size(); i++){
+                	if(readyQueue[i].pid!= currentProc.pid){
+                		temp.push_back(readyQueue[i]);
+					}
+				}
+				temp.push_back(currentProc);
+				readyQueue = temp; 
+            }
+        }
+        
+        output = SortWithId(output);
+        for(int i = 0; i < output.size(); i++){
+        	result[5].pid.push_back(output[i].pid);
+        	result[5].waiting.push_back(output[i].waiting);
+        	result[5].turnaround.push_back(output[i].turnaround);
+            //cout << "Process " << readyQueue[i].pid << " waiting time: " << readyQueue[i].waiting
+            //     << " and turnaround time: " << readyQueue[i].turnaround << endl;        	
+		}
+		result[5].graph = graph;
+        //cout << "Graph:" << graph << endl;
+        cout << result[5].graph << endl;
+        for(int i = 0 ; i <result[5].pid.size() ; i++){
+        	cout << result[5].pid[i] << "	" << result[5].waiting[i] << "	" << result[5].turnaround[i] << endl;
+		}
+        //cout << "Graph:" << graph << endl;
+    }
 };
 
 int main() {
@@ -368,7 +527,7 @@ int main() {
     inputFile >> order >> timeslice;
     inputFile.ignore( INT16_MAX, '\n' );
     inputFile.ignore( INT16_MAX, '\n' );
-    // ¦pªGtxt¤º¨SªF¦è ´Nµ²§ô
+    // å¦‚æœtxtå…§æ²’æ±è¥¿ å°±çµæŸ
     if (inputFile.eof() || check == false ) {
         cout << "\n### Get nothing from the file input" << filename << ".txt ! ###\n";
         cout << "\nThere is no data!\n";
@@ -381,7 +540,7 @@ int main() {
 		inputFile.close();
 	}
 
-    // ²K¥[¶iµ{ (pid, arrival time, burst time)
+    // æ·»åŠ é€²ç¨‹ (pid, arrival time, burst time)
     
     /*scheduler.addProcess(5,6,26,13);
     scheduler.addProcess(13,1,7,2);
@@ -397,18 +556,19 @@ int main() {
 	scheduler.addProcess(29,6,20,8);
 	scheduler.addProcess(4,3,18,10);
 	scheduler.addProcess(20,3,15,14);
-	scheduler.addProcess(3,4,22,3);*/ 
+	scheduler.addProcess(3,4,22,3);*/
+	 
 	/*scheduler.addProcess(1,8,0,2);
 	scheduler.addProcess(2,4,2,2);
 	scheduler.addProcess(3,9,5,2);
 	scheduler.addProcess(4,5,8,2);*/
 	scheduler.sort();	
     scheduler.FCFS();
-    scheduler.RR(3);
+    scheduler.RR(timeslice);
 	scheduler.SJF();
 	scheduler.SRTF();
-	
+	scheduler.HRRN();
+	scheduler.PPRR(timeslice);
     return 0;
 }
-
 
